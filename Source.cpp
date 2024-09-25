@@ -1,5 +1,3 @@
-#pragma warning(disable: 4996)  // disable warning
-
 #include <iostream>
 #include <string>
 #include <ctime>
@@ -28,7 +26,7 @@ void clearScreen() {
 void createProcess(string name) {
     time_t now = time(0);
     struct tm tstruct;
-    tstruct = *localtime(&now);
+    localtime_s(&tstruct, &now);
 
     char date_time[100];
     strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
