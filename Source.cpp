@@ -1,8 +1,11 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <unordered_set>
 
 using namespace std;
+
+unordered_set<string> activeProcesses;  // Stores names of active processes
 
 void header()
 {
@@ -30,10 +33,12 @@ void createProcess(string name) {
 
     char date_time[100];
     strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
-    
+
     // Process info
     string processName = name;
     string timestamp = date_time;
+
+    activeProcesses.insert(name);  // Store the process name
 }
 
 void processInfo(string name) {
@@ -104,7 +109,7 @@ int main() {
         }
 
         // "screen -s <name>"
-        else if (input.substr(0,10) == "screen -s " && input.length() > 10) {
+        else if (input.substr(0, 10) == "screen -s " && input.length() > 10) {
             string processName = input.substr(10);
 
             createProcess(processName);
@@ -115,7 +120,12 @@ int main() {
         else if (input.substr(0, 10) == "screen -r " && input.length() > 10) {
             string processName = input.substr(10);
 
-            drawConsole(processName);
+            if (activeProcesses.find(processName) != activeProcesses.end()) {
+                drawConsole(processName);  // Process exists, allow reopening
+            }
+            else {
+                cout << "Error: '" << processName << "' does not exist. Use 'screen -s <name>'.\n";
+            }
         }
         else {
             cout << "Unknown command \n";
