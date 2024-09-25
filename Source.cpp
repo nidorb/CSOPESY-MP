@@ -1,5 +1,8 @@
+#pragma warning(disable: 4996)  // disable warning
+
 #include <iostream>
 #include <string>
+#include <ctime>
 
 using namespace std;
 
@@ -20,6 +23,54 @@ void header()
 
 void clearScreen() {
     system("cls");
+}
+
+void createProcess(string name) {
+    time_t now = time(0);
+    struct tm tstruct;
+    tstruct = *localtime(&now);
+
+    char date_time[100];
+    strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
+    
+    // Process info
+    string processName = name;
+    string timestamp = date_time;
+}
+
+void processInfo(string name) {
+    string processName = name;
+    int curInst = 0;  // placeholder
+    int totalInst = 50;  // placeholder
+
+    char date_time[100] = "09/25/2024, 10:18:28 PM";
+
+    cout << "Process: " << processName << endl;
+    cout << "Instruction line: " << curInst << "/" << totalInst << endl;
+    cout << "Timestamp: " << date_time << endl;
+}
+
+void drawConsole(string name) {
+    clearScreen();
+
+    processInfo(name);
+
+    string input;
+    bool isRunning = true;
+
+    while (isRunning) {
+        cout << ">> ";
+        getline(cin, input);
+
+        if (input == "exit") {
+            clearScreen();
+            header();
+            isRunning = false;
+        }
+        else {
+            cout << "Unknown command \n";
+        }
+    }
 }
 
 int main() {
@@ -52,6 +103,21 @@ int main() {
         }
         else if (input == "report-util") {
             cout << "report-util command recognized. Doing something.\n";
+        }
+
+        // "screen -s <name>"
+        else if (input.substr(0,10) == "screen -s " && input.length() > 10) {
+            string processName = input.substr(10);
+
+            createProcess(processName);
+            drawConsole(processName);
+        }
+
+        // "screen -r <name>"
+        else if (input.substr(0, 10) == "screen -r " && input.length() > 10) {
+            string processName = input.substr(10);
+
+            drawConsole(processName);
         }
         else {
             cout << "Unknown command \n";
