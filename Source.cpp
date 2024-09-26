@@ -5,7 +5,25 @@
 
 using namespace std;
 
-unordered_set<string> activeProcesses;  // Stores names of active processes
+class Console {
+public:
+    string name, timestamp;
+
+    // Constructor
+    Console(string name, string timestamp) : name(name), timestamp(timestamp) {}
+
+    // Equality operator
+    bool operator==(const Console& other) const {
+        return name == other.name && timestamp == other.timestamp;
+    }
+};
+
+// Hash function
+struct ConsoleHash {
+    size_t operator()(const Console& c) const {
+        return hash<string>()(c.name) ^ hash<string>()(c.timestamp);
+    }
+};
 
 void header()
 {
@@ -26,7 +44,7 @@ void clearScreen() {
     system("cls");
 }
 
-void createProcess(string name) {
+string getCurDate() {
     time_t now = time(0);
     struct tm tstruct;
     localtime_s(&tstruct, &now);
@@ -34,29 +52,22 @@ void createProcess(string name) {
     char date_time[100];
     strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
 
-    // Process info
-    string processName = name;
-    string timestamp = date_time;
-
-    activeProcesses.insert(name);  // Store the process name
+    return date_time;
 }
 
-void processInfo(string name) {
-    string processName = name;
+void processInfo(Console console) {
     int curInst = 0;  // placeholder
     int totalInst = 50;  // placeholder
 
-    char date_time[100] = "09/25/2024, 10:18:28 PM";
-
-    cout << "Process: " << processName << endl;
+    cout << "Process: " << console.name << endl;
     cout << "Instruction line: " << curInst << "/" << totalInst << endl;
-    cout << "Timestamp: " << date_time << endl;
+    cout << "Timestamp: " << console.timestamp << endl;
 }
 
-void drawConsole(string name) {
+void drawConsole(Console console) {
     clearScreen();
 
-    processInfo(name);
+    processInfo(console);
 
     string input;
     bool isRunning = true;
@@ -77,6 +88,7 @@ void drawConsole(string name) {
 }
 
 int main() {
+    unordered_set<Console, ConsoleHash> activeProcesses;  // Stores names of active processes
     string input;
 
     header();
@@ -112,18 +124,27 @@ int main() {
         else if (input.substr(0, 10) == "screen -s " && input.length() > 10) {
             string processName = input.substr(10);
 
-            createProcess(processName);
-            drawConsole(processName);
+            Console console(processName, getCurDate());
+            drawConsole(console);
+            activeProcesses.insert(console);  // Store the process console
         }
 
         // "screen -r <name>"
         else if (input.substr(0, 10) == "screen -r " && input.length() > 10) {
             string processName = input.substr(10);
 
-            if (activeProcesses.find(processName) != activeProcesses.end()) {
-                drawConsole(processName);  // Process exists, allow reopening
+            // Check if process exists
+            bool isExist = false;
+            for (Console console : activeProcesses) {
+                if (console.name == processName) {
+                    isExist = true;
+                    drawConsole(console);  // Process exists, allow reopening
+                    break;
+                }
             }
-            else {
+
+            // Process does not exist
+            if (isExist == false) {
                 cout << "Error: '" << processName << "' does not exist. Use 'screen -s <name>'.\n";
             }
         }
