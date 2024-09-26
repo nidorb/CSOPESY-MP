@@ -25,6 +25,8 @@ struct ConsoleHash {
     }
 };
 
+unordered_set<Console, ConsoleHash> activeProcesses;  // Stores names of active processes
+
 void header()
 {
     cout << "\033[38;2;233;233;233m";
@@ -87,8 +89,17 @@ void drawConsole(Console console) {
     }
 }
 
+Console searchProcessByName(string name) {
+    for (Console console : activeProcesses) {
+        if (console.name == name) {
+            return console;
+        }
+    }
+
+    return Console("", "");
+}
+
 int main() {
-    unordered_set<Console, ConsoleHash> activeProcesses;  // Stores names of active processes
     string input;
 
     header();
@@ -124,9 +135,16 @@ int main() {
         else if (input.substr(0, 10) == "screen -s " && input.length() > 10) {
             string processName = input.substr(10);
 
-            Console console(processName, getCurDate());
-            drawConsole(console);
-            activeProcesses.insert(console);  // Store the process console
+            // Check if process exists
+            Console res_console = searchProcessByName(processName);
+            if (res_console.name == "") {
+                Console console(processName, getCurDate());
+                drawConsole(console);
+                activeProcesses.insert(console);  // Store the process console
+            }
+            else {
+                cout << "Error: '" << processName << "' name already exists.\n";
+            }
         }
 
         // "screen -r <name>"
@@ -134,17 +152,11 @@ int main() {
             string processName = input.substr(10);
 
             // Check if process exists
-            bool isExist = false;
-            for (Console console : activeProcesses) {
-                if (console.name == processName) {
-                    isExist = true;
-                    drawConsole(console);  // Process exists, allow reopening
-                    break;
-                }
+            Console res_console = searchProcessByName(processName);
+            if (res_console.name != "") {
+                drawConsole(res_console);  // Process exists, allow reopening
             }
-
-            // Process does not exist
-            if (isExist == false) {
+            else {
                 cout << "Error: '" << processName << "' does not exist. Use 'screen -s <name>'.\n";
             }
         }
