@@ -2,6 +2,7 @@
 #include <string>
 #include <ctime>
 #include <vector>
+#include <thread>
 
 #include "Process.h"
 
@@ -82,17 +83,18 @@ Process searchProcessByName(string name) {
     return Process("", "");
 }
 
-int main() {
+
+
+void handleInput() {
     string input;
+    bool isRunning = true;
 
-    header();
-
-    while (true) {
+    while (isRunning) {
         cout << "Enter command: ";
         getline(cin, input);
 
         if (input == "exit") {
-            return 0;
+            isRunning = false;
         }
         else if (input == "clear") {
             clearScreen();
@@ -147,6 +149,16 @@ int main() {
             cout << "Unknown command \n";
         }
     }
+}
+
+
+
+int main() {
+    header();
+
+    thread inputThread(handleInput);
+
+    inputThread.join();
 
     return 0;
 }
