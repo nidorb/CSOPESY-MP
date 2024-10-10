@@ -1,43 +1,14 @@
 #include <iostream>
 #include <string>
 #include <ctime>
-#include <unordered_set>
+#include <vector>
+
+#include "Process.h"
 
 using namespace std;
 
-class Process {
-public:
-    string name, timestamp;
-
-    enum ProcessState {
-        READY,
-        RUNNING,
-        WAITING,
-        FINISHED
-    };
-    
-    int pid, commandCtr;
-    int cpuCoreID = -1;
-
-    ProcessState currentState;
-
-    // Constructor
-    Process(string name, string timestamp) : name(name), timestamp(timestamp) {}
-
-    // Equality operator
-    bool operator==(const Process& other) const {
-        return name == other.name && timestamp == other.timestamp;
-    }
-};
-
-// Hash function
-struct ProcessHash {
-    size_t operator()(const Process& c) const {
-        return hash<string>()(c.name) ^ hash<string>()(c.timestamp);
-    }
-};
-
-unordered_set<Process, ProcessHash> activeProcesses;  // Stores names of active processes
+vector<Process> activeProcesses;  // Stores names of active processes
+vector<Process> readyProcesses;  // Stores processes ready to be assigned to a processor
 
 void header()
 {
@@ -152,7 +123,7 @@ int main() {
             if (res_console.name == "") {
                 Process console(processName, getCurDate());
                 drawConsole(console);
-                activeProcesses.insert(console);  // Store the process console
+                activeProcesses.push_back(console);  // Store the process console
             }
             else {
                 cout << "Error: '" << processName << "' name already exists.\n";
