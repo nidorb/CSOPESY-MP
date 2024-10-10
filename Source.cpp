@@ -5,27 +5,39 @@
 
 using namespace std;
 
-class Console {
+class Process {
 public:
     string name, timestamp;
 
+    enum ProcessState {
+        READY,
+        RUNNING,
+        WAITING,
+        FINISHED
+    };
+    
+    int pid, commandCtr;
+    int cpuCoreID = -1;
+
+    ProcessState currentState;
+
     // Constructor
-    Console(string name, string timestamp) : name(name), timestamp(timestamp) {}
+    Process(string name, string timestamp) : name(name), timestamp(timestamp) {}
 
     // Equality operator
-    bool operator==(const Console& other) const {
+    bool operator==(const Process& other) const {
         return name == other.name && timestamp == other.timestamp;
     }
 };
 
 // Hash function
-struct ConsoleHash {
-    size_t operator()(const Console& c) const {
+struct ProcessHash {
+    size_t operator()(const Process& c) const {
         return hash<string>()(c.name) ^ hash<string>()(c.timestamp);
     }
 };
 
-unordered_set<Console, ConsoleHash> activeProcesses;  // Stores names of active processes
+unordered_set<Process, ProcessHash> activeProcesses;  // Stores names of active processes
 
 void header()
 {
@@ -57,7 +69,7 @@ string getCurDate() {
     return date_time;
 }
 
-void processInfo(Console console) {
+void processInfo(Process console) {
     int curInst = 0;  // placeholder
     int totalInst = 50;  // placeholder
 
@@ -66,7 +78,7 @@ void processInfo(Console console) {
     cout << "Timestamp: " << console.timestamp << endl;
 }
 
-void drawConsole(Console console) {
+void drawConsole(Process console) {
     clearScreen();
 
     processInfo(console);
@@ -89,14 +101,14 @@ void drawConsole(Console console) {
     }
 }
 
-Console searchProcessByName(string name) {
-    for (Console console : activeProcesses) {
+Process searchProcessByName(string name) {
+    for (Process console : activeProcesses) {
         if (console.name == name) {
             return console;
         }
     }
 
-    return Console("", "");
+    return Process("", "");
 }
 
 int main() {
@@ -136,9 +148,9 @@ int main() {
             string processName = input.substr(10);
 
             // Check if process exists
-            Console res_console = searchProcessByName(processName);
+            Process res_console = searchProcessByName(processName);
             if (res_console.name == "") {
-                Console console(processName, getCurDate());
+                Process console(processName, getCurDate());
                 drawConsole(console);
                 activeProcesses.insert(console);  // Store the process console
             }
@@ -152,7 +164,7 @@ int main() {
             string processName = input.substr(10);
 
             // Check if process exists
-            Console res_console = searchProcessByName(processName);
+            Process res_console = searchProcessByName(processName);
             if (res_console.name != "") {
                 drawConsole(res_console);  // Process exists, allow reopening
             }
