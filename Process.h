@@ -58,7 +58,7 @@ public:
         logs << "Process name: " << name << "\n";
         logs << "Logs: \n\n";
 
-        logs << totalWork << endl; // debug print
+        // logs << totalWork << endl; // debug print
 
         for (int i = 0; i < totalWork; i++) {
             logs << getCurDateProc() << "   Core: " << cpuCoreID << "  \"Hello world from " << name << "!\"\n";
