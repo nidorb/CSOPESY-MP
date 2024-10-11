@@ -7,6 +7,7 @@
 #include "Process.h"
 //#include "CPU.h"
 #include "Scheduler.h"
+#include "Core.h"
 
 using namespace std;
 
