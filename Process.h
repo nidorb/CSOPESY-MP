@@ -24,20 +24,23 @@ public:
     static int next_pid;
 
     // Constructor
-    Process(string name, string timestamp, int cpuCoreID, int progress, int totalWork, ProcessState state) : 
-        name(name), timestamp(timestamp), cpuCoreID(cpuCoreID), progress(progress), totalWork(totalWork), currentState(state) {
+    Process(string name, string timestamp) : 
+        name(name), timestamp(timestamp) {
         if (!name.empty()) {
             pid = next_pid++;
-        }
-        if (currentState == RUNNING) {
-            if (progress == totalWork) {
-                currentState = FINISHED;
-            }
         }
     }
 
     void executePrintCommands(){
 
+    }
+
+    void setRunningToFinished() {
+        if (currentState == RUNNING) {
+            if (progress == totalWork) {
+                currentState = FINISHED;
+            }
+        }
     }
 
     string getProcessName(){
@@ -47,6 +50,8 @@ public:
     string getProgressString(){
         return std::to_string(progress) + " / " + std::to_string(totalWork);
     }
+
+
 };
 
 #endif
