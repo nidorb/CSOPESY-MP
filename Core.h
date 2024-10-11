@@ -2,6 +2,8 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
+#include <sstream>
+
 #include "Process.h"
 
 using namespace std;
@@ -28,9 +30,9 @@ public:
         std::tm buf;
         localtime_r(&in_time_t, &buf);
 
-        std::cout << "(" << std::put_time(&buf, "%m/%d/%Y %I:%M:%S%p") << ") "
-                  << "Core:" << id << " \"Hello world from " << process->getProcessName() << "!\"" << std::endl;
-        // TODO: implement function
+        std::ostringstream oss;
+        oss << "(" << std::put_time(&buf, "%m/%d/%Y %I:%M:%S%p") << ") "
+            << "Core:" << id << " Hello world from " << process->getProcessName() << "!";
         process->executePrintCommands();
         isFree = true;
     }

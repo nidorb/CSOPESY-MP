@@ -12,7 +12,7 @@
 using namespace std;
 
 const int NUM_CORES = 4;
-Scheduler scheduler;
+Scheduler scheduler(NUM_CORES);
 //CPU cpuCores(NUM_CORES);
 
 int Process::next_pid = 0;

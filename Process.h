@@ -1,3 +1,6 @@
+#ifndef PROCESS_H
+#define PROCESS_H
+
 using namespace std;
 
 class Process {
@@ -25,4 +28,14 @@ public:
             pid = next_pid++;
         }
     }
+
+    void executePrintCommands(){
+
+    }
+
+    string getProcessName(){
+        return name;
+    }
 };
+
+#endif
