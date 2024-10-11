@@ -14,19 +14,21 @@ using namespace std;
 class Core {
 public:
     int id;
-    thread thread;
+    thread coreThread;
     condition_variable cv;
     mutex mtx;
     Process* currentProcess;
     std::function<void(Process*)> onProcessFinished;
 
+    bool isRunning = true;
+
     Core(int id) : id(id), isFree(true), currentProcess(nullptr) {}
 
     void start() {
-        thread = std::thread([this]() {
-            while (true) {
+        coreThread = std::thread([this]() {
+            while (isRunning) {
                 unique_lock<mutex> lock(mtx);
-                cv.wait(lock, [this]() { return currentProcess != nullptr; });
+                cv.wait(lock, [this]() { return currentProcess != nullptr || !isRunning; });
 
                 if (currentProcess != nullptr) {
                     executeProcess(currentProcess);
@@ -62,6 +64,18 @@ public:
 
     bool isCoreFree() {
         return isFree;
+    }
+
+    void stop() {
+        isRunning = false;
+        cv.notify_all();
+        if (coreThread.joinable()) {
+            coreThread.join();
+        }
+    }
+
+    ~Core() {
+        stop();
     }
 
 private:
