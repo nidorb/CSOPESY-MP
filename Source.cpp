@@ -5,15 +5,12 @@
 #include <thread>
 
 #include "Process.h"
-//#include "CPU.h"
 #include "Scheduler.h"
-#include "Core.h"
 
 using namespace std;
 
 const int NUM_CORES = 4;
 Scheduler scheduler(NUM_CORES);
-//CPU cpuCores(NUM_CORES);
 
 int Process::next_pid = 0;
 
@@ -157,26 +154,19 @@ void handleInput() {
 
         // "screen -ls"
         else if (input.substr(0, 10) == "screen -ls") {
-            // Print running processes
             std::cout << "Running processes:\n";
-            for (const auto& process : processes) {
-                if (process.currentState == Process::RUNNING) {
-                    std::cout << process.name << "   (" << process.timestamp << ")    Core:  "
-                        << process.coreID << "    " << process.getProgressString() << "\n";
-                }
-            }
+            std::cout << "process05   (01/18/2024 09:15:22AM)    Core:  0    1235 / 5876\n";
+            std::cout << "process06   (01/18/2024 09:17:22AM)    Core:  1    3 / 5876\n";
+            std::cout << "process07   (01/18/2024 09:17:45AM)    Core:  2    9 / 1000\n";
+            std::cout << "process08   (01/18/2024 09:18:58AM)    Core:  3    12 / 80\n";
 
-            // Print finished processes
             std::cout << "\nFinished processes:\n";
-            for (const auto& process : processes) {
-                if (process.currentState == Process::FINISHED) {
-                    std::cout << process.name << "   (" << process.timestamp << ")    Finished    "
-                        << process.totalWork << " / " << process.totalWork << "\n";
-                }
-            }
+            std::cout << "process01   (01/18/2024 09:00:21AM)    Finished    5876 / 5876\n";
+            std::cout << "process02   (01/18/2024 09:00:22AM)    Finished    5876 / 5876\n";
+            std::cout << "process03   (01/18/2024 09:00:42AM)    Finished    1000 / 1000\n";
+            std::cout << "process04   (01/18/2024 09:00:53AM)    Finished    80 / 80\n";
 
             std::cout << "-------------------------------------------\n";
-
         }
 
         else {

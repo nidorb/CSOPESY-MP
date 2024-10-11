@@ -11,27 +11,30 @@ using namespace std;
 class Core {
 public:
     int id;
-    std::thread thread;
+    thread thread;
 
     Core(int id) : id(id), isFree(true) {}
 
     void start() {
         thread = std::thread([this]() {
             // init
+
         });
     }
 
     void executeProcess(Process* process) {
         if (process == nullptr) return;
+
         isFree = false;
         process->cpuCoreID = id;
-        auto now = std::chrono::system_clock::now();
-        auto in_time_t = std::chrono::system_clock::to_time_t(now);
-        std::tm buf;
+        auto now = chrono::system_clock::now();
+        auto in_time_t = chrono::system_clock::to_time_t(now);
+        tm buf;
+
         #ifdef _WIN32
-                localtime_s(&buf, &in_time_t);
+            localtime_s(&buf, &in_time_t);
         #else
-                localtime_r(&in_time_t, &buf);
+            localtime_r(&in_time_t, &buf);
         #endif
 
         std::ostringstream oss;
