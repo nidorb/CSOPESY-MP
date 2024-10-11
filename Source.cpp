@@ -9,7 +9,11 @@
 
 using namespace std;
 
-vector<Process> activeProcesses;  // Stores names of active processes
+const int NUM_CORES = 4;
+
+int Process::next_pid = 0;
+
+vector<Process*> activeProcesses;  // Stores names of active processes
 vector<Process> readyProcesses;  // Stores processes ready to be assigned to a processor
 
 void header()
@@ -43,11 +47,13 @@ string getCurDate() {
     return date_time;
 }
 
-void processInfo(Process console) {
+void processInfo(Process& console) {
     int curInst = 0;  // placeholder
     int totalInst = 50;  // placeholder
 
+    cout << "PID: " << console.pid << endl;
     cout << "Process: " << console.name << endl;
+    cout << "CPU Core: " << console.cpuCoreID << endl;
     cout << "Instruction line: " << curInst << "/" << totalInst << endl;
     cout << "Timestamp: " << console.timestamp << endl;
 }
@@ -75,16 +81,15 @@ void drawConsole(Process console) {
     }
 }
 
-Process searchProcessByName(string name) {
-    for (Process console : activeProcesses) {
-        if (console.name == name) {
+Process* searchProcessByName(string name) {
+    for (Process* console : activeProcesses) {
+        if (console->name == name) {
             return console;
         }
     }
 
-    return Process("", "");
+    return nullptr;
 }
-
 
 
 void handleInput() {
@@ -123,10 +128,10 @@ void handleInput() {
             string processName = input.substr(10);
 
             // Check if process exists
-            Process res_console = searchProcessByName(processName);
-            if (res_console.name == "") {
-                Process console(processName, getCurDate());
-                drawConsole(console);
+            Process* res_console = searchProcessByName(processName);
+            if (res_console == nullptr) {
+                Process* console = new Process(processName, getCurDate());  // Dynamic memory allocation
+                drawConsole(*console);
                 activeProcesses.push_back(console);  // Store the process console
             }
             else {
@@ -139,9 +144,9 @@ void handleInput() {
             string processName = input.substr(10);
 
             // Check if process exists
-            Process res_console = searchProcessByName(processName);
-            if (res_console.name != "") {
-                drawConsole(res_console);  // Process exists, allow reopening
+            Process* res_console = searchProcessByName(processName);
+            if (res_console != nullptr) {
+                drawConsole(*res_console);  // Process exists, allow reopening
             }
             else {
                 cout << "Error: '" << processName << "' does not exist. Use 'screen -s <name>'.\n";
@@ -159,6 +164,7 @@ int main() {
     header();
 
     thread inputThread(handleInput);
+
 
     inputThread.join();
 
