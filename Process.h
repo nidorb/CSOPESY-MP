@@ -18,7 +18,7 @@ public:
     int commandCtr;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
     int progress;
-    int totalWork;
+    int totalWork=100;
     ProcessState currentState = READY;
 
     static int next_pid;
