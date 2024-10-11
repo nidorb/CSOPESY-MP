@@ -39,20 +39,22 @@ public:
 
         isFree = false;
         process->cpuCoreID = id;
-        auto now = chrono::system_clock::now();
-        auto in_time_t = chrono::system_clock::to_time_t(now);
-        tm buf;
+        // auto now = chrono::system_clock::now();
+        // auto in_time_t = chrono::system_clock::to_time_t(now);
+        // tm buf;
 
-        #ifdef _WIN32
-            localtime_s(&buf, &in_time_t);
-        #else
-            localtime_r(&in_time_t, &buf);
-        #endif
+        // #ifdef _WIN32
+        //     localtime_s(&buf, &in_time_t);
+        // #else
+        //     localtime_r(&in_time_t, &buf);
+        // #endif
 
-        ostringstream oss;
-        oss << "(" << put_time(&buf, "%m/%d/%Y %I:%M:%S%p") << ") "
-            << "Core:" << id << " \"Hello world from " << process->getProcessName() << "!\"";
-        cout << oss.str() << endl;
+        // for debug printing only
+
+        // ostringstream oss;
+        // oss << "(" << put_time(&buf, "%m/%d/%Y %I:%M:%S%p") << ") "
+        //     << "Core:" << id << " \"Hello world from " << process->getProcessName() << "!\"";
+        // cout << oss.str() << endl;
 
         process->createProcFile();
         isFree = true;
