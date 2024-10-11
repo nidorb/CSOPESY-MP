@@ -113,7 +113,9 @@ void handleInput() {
             cout << "screen command recognized. Doing something.\n";
         }
         else if (input == "scheduler-test") {
-            cout << "scheduler-test command recognized. Doing something.\n";
+            for (int i = 0; i < 10; i++) {
+                scheduler.readyProcesses.emplace_back(new Process("Process_" + to_string(i), getCurDate()));
+            }
         }
         else if (input == "scheduler-stop") {
             cout << "scheduler-stop command recognized. Doing something.\n";

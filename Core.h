@@ -18,7 +18,13 @@ public:
     void start() {
         thread = std::thread([this]() {
             // init
-
+            while (true) {
+                /*cout << "TEST";*/
+                isFree = true;
+                this_thread::sleep_for(chrono::milliseconds(100));
+                isFree = false;
+                this_thread::sleep_for(chrono::milliseconds(2000));
+            }
         });
     }
 
@@ -37,8 +43,8 @@ public:
             localtime_r(&in_time_t, &buf);
         #endif
 
-        std::ostringstream oss;
-        oss << "(" << std::put_time(&buf, "%m/%d/%Y %I:%M:%S%p") << ") "
+        ostringstream oss;
+        oss << "(" << put_time(&buf, "%m/%d/%Y %I:%M:%S%p") << ") "
             << "Core:" << id << " Hello world from " << process->getProcessName() << "!";
         process->executePrintCommands();
         isFree = true;
