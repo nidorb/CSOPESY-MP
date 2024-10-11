@@ -166,20 +166,6 @@ void handleInput() {
             std::cout << "process03   (01/18/2024 09:00:42AM)    Finished    1000 / 1000\n";
             std::cout << "process04   (01/18/2024 09:00:53AM)    Finished    80 / 80\n";
 
-            // Print running processes
-            std::cout << "Running processes:\n";
-            for (const auto& processPtr : runningProcesses) {
-                std::cout << processPtr->name << "   (" << processPtr->timestamp << ")    Core:  "
-                    << processPtr->cpuCoreID << "    " << processPtr->getProgressString() << "\n";
-            }
-
-            // Print finished processes
-            std::cout << "\nFinished processes:\n";
-            for (const auto& processPtr : finishedProcesses) {
-                std::cout << processPtr->name << "   (" << processPtr->timestamp << ")    Finished    "
-                    << processPtr->totalWork << " / " << processPtr->totalWork << "\n";
-            }
-
             std::cout << "-------------------------------------------\n";
         }
 
