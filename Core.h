@@ -66,16 +66,12 @@ public:
         return isFree;
     }
 
-    void stop() {
+    ~Core() {
         isRunning = false;
         cv.notify_all();
         if (coreThread.joinable()) {
             coreThread.join();
         }
-    }
-
-    ~Core() {
-        stop();
     }
 
 private:
