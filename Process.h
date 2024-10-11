@@ -17,7 +17,6 @@ public:
 
     int commandCtr;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
-    int progress;
     int totalWork=100;
     ProcessState currentState = READY;
 
@@ -33,7 +32,7 @@ public:
 
     void setRunningToFinished() {
         if (currentState == RUNNING) {
-            if (progress == totalWork) {
+            if (commandCtr == totalWork) {
                 currentState = FINISHED;
             }
         }
@@ -67,6 +66,8 @@ public:
         }
 
         logs.close();
+        setRunningToFinished();
+        commandCtr = 0;
     }
 
     string getProcessName(){
@@ -74,7 +75,7 @@ public:
     }
 
     string getProgressString(){
-        return std::to_string(progress) + " / " + std::to_string(totalWork);
+        return std::to_string(commandCtr) + " / " + std::to_string(totalWork);
     }
 
 
