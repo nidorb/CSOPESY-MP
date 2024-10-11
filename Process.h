@@ -15,7 +15,7 @@ public:
         FINISHED
     };
 
-    int commandCtr;
+    int commandCtr=0;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
     int totalWork=100;
     ProcessState currentState = READY;
@@ -67,7 +67,6 @@ public:
 
         logs.close();
         setRunningToFinished();
-        commandCtr = 0;
     }
 
     string getProcessName(){

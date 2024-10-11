@@ -17,6 +17,11 @@ public:
 	Scheduler(int NUM_CORES) : numCores(NUM_CORES) {
 		for (int i = 0; i < numCores; i++) {
 			auto core = make_unique<Core>(i);
+
+			core->onProcessFinished = [this](Process* process) {
+				handleProcessCompletion(process);
+				};
+
 			core->start();
 			cores.push_back(move(core));
 		}
@@ -38,14 +43,19 @@ public:
 
 						// Assign process to CPU core
 						cores[i]->assignProcess(curProcess);
-
-						//cout << readyProcesses.size() << endl;
-						/*cout << cores[i]->id << endl;*/
 					}
 				}	
 			}
 
-			this_thread::sleep_for(chrono::milliseconds(10));
+			this_thread::sleep_for(chrono::milliseconds(100));
 		}
+	}
+
+	void handleProcessCompletion(Process* process) {
+		auto it = std::find(runningProcesses.begin(), runningProcesses.end(), process);
+		if (it != runningProcesses.end()) {
+			runningProcesses.erase(it);
+		}
+		finishedProcesses.push_back(process);
 	}
 };
