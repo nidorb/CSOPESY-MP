@@ -11,7 +11,8 @@
 using namespace std;
 
 const int NUM_CORES = 4;
-Scheduler scheduler(NUM_CORES);
+Scheduler scheduler;
+//CPU cpuCores(NUM_CORES);
 
 int Process::next_pid = 0;
 
@@ -81,7 +82,7 @@ void drawConsole(Process console) {
 }
 
 Process* searchProcessByName(string name) {
-    for (Process* console : scheduler.activeProcesses) {
+    for (Process* console : scheduler.readyProcesses) {
         if (console->name == name) {
             return console;
         }
@@ -132,7 +133,7 @@ void handleInput() {
             if (res_console == nullptr) {
                 Process* console = new Process(processName, getCurDate());  // Dynamic memory allocation
                 drawConsole(*console);
-                scheduler.activeProcesses.push_back(console);  // Store the process console
+                scheduler.readyProcesses.push_back(console);  // Store the process console
             }
             else {
                 cout << "Error: '" << processName << "' name already exists.\n";
