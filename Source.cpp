@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "Process.h"
+#include "CPU.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ string getCurDate() {
     time_t now = time(0);
     struct tm tstruct;
     localtime_s(&tstruct, &now);
+    // localtime_r(&now, &tstruct); // for Mac computers
 
     char date_time[100];
     strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
