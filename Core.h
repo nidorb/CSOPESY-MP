@@ -28,8 +28,11 @@ public:
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
         std::tm buf;
-        // localtime_r(&in_time_t, &buf);
-        localtime_s(&buf, &in_time_t); // for windows
+        #ifdef _WIN32
+                localtime_s(&buf, &in_time_t);
+        #else
+                localtime_r(&in_time_t, &buf);
+        #endif
 
         std::ostringstream oss;
         oss << "(" << std::put_time(&buf, "%m/%d/%Y %I:%M:%S%p") << ") "
