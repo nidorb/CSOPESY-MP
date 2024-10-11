@@ -1,4 +1,3 @@
-
 using namespace std;
 
 class Process {
@@ -16,7 +15,7 @@ public:
     int commandCtr;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
 
-    ProcessState currentState;
+    ProcessState currentState = READY;
 
     static int next_pid;
 

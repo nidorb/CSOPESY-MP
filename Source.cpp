@@ -5,16 +5,15 @@
 #include <thread>
 
 #include "Process.h"
-#include "CPU.h"
+//#include "CPU.h"
+#include "Scheduler.h"
 
 using namespace std;
 
 const int NUM_CORES = 4;
+Scheduler scheduler(NUM_CORES);
 
 int Process::next_pid = 0;
-
-vector<Process*> activeProcesses;  // Stores names of active processes
-vector<Process> readyProcesses;  // Stores processes ready to be assigned to a processor
 
 void header()
 {
@@ -82,7 +81,7 @@ void drawConsole(Process console) {
 }
 
 Process* searchProcessByName(string name) {
-    for (Process* console : activeProcesses) {
+    for (Process* console : scheduler.activeProcesses) {
         if (console->name == name) {
             return console;
         }
@@ -90,6 +89,7 @@ Process* searchProcessByName(string name) {
 
     return nullptr;
 }
+
 
 
 void handleInput() {
@@ -132,7 +132,7 @@ void handleInput() {
             if (res_console == nullptr) {
                 Process* console = new Process(processName, getCurDate());  // Dynamic memory allocation
                 drawConsole(*console);
-                activeProcesses.push_back(console);  // Store the process console
+                scheduler.activeProcesses.push_back(console);  // Store the process console
             }
             else {
                 cout << "Error: '" << processName << "' name already exists.\n";
@@ -164,7 +164,6 @@ int main() {
     header();
 
     thread inputThread(handleInput);
-
 
     inputThread.join();
 
