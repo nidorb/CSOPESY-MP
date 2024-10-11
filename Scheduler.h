@@ -37,7 +37,7 @@ public:
 						readyProcesses.erase(readyProcesses.begin());
 
 						// Assign process to CPU core
-						cores[i]->executeProcess(curProcess);
+						cores[i]->assignProcess(curProcess);
 
 						//cout << readyProcesses.size() << endl;
 						/*cout << cores[i]->id << endl;*/

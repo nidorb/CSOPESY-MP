@@ -36,8 +36,11 @@ void clearScreen() {
 string getCurDate() {
     time_t now = time(0);
     struct tm tstruct;
-    localtime_s(&tstruct, &now);
-    // localtime_r(&now, &tstruct); // for Mac computers
+    #ifdef _WIN32
+        localtime_s(&tstruct, &now);
+    #else
+        localtime_r(&now, &tstruct);
+    #endif
 
     char date_time[100];
     strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
@@ -45,14 +48,7 @@ string getCurDate() {
     return date_time;
 }
 
-string getCurDateProc() {
-    time_t now = time(0);
-    struct tm tstruct;
-    localtime_s(&tstruct, &now);
-    char date_time[100];
-    strftime(date_time, sizeof(date_time), "(%m/%d/%Y %I:%M:%S%p)", &tstruct);
-    return date_time;
-}
+
 
 void processInfo(Process& console) {
     int curInst = 0;  // placeholder
@@ -96,21 +92,6 @@ Process* searchProcessByName(string name) {
     }
 
     return nullptr;
-}
-
-void createProcFile(Process& proc) {
-    ofstream logs;
-    logs.open(proc.name + ".txt");
-    logs << "Process name: " << proc.name << "\n";
-    logs << "Logs: \n\n";
-
-    for (int i = 0; i < proc.totalWork; i++) {
-        logs << getCurDateProc() << "   Core: " << proc.cpuCoreID << "  \"Hello world from " << proc.name << "!\"\n";
-        proc.commandCtr++;
-        this_thread::sleep_for(chrono::milliseconds(100));
-    }
-
-    logs.close();
 }
 
 

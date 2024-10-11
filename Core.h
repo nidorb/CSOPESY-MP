@@ -3,6 +3,8 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <condition_variable>
+#include <mutex>
 
 #include "Process.h"
 
@@ -12,18 +14,22 @@ class Core {
 public:
     int id;
     thread thread;
+    condition_variable cv;
+    mutex mtx;
+    Process* currentProcess;
 
-    Core(int id) : id(id), isFree(true) {}
+    Core(int id) : id(id), isFree(true), currentProcess(nullptr) {}
 
     void start() {
         thread = std::thread([this]() {
-            // init
             while (true) {
-                /*cout << "TEST";*/
-                isFree = true;
-                this_thread::sleep_for(chrono::milliseconds(100));
-                isFree = false;
-                this_thread::sleep_for(chrono::milliseconds(2000));
+                unique_lock<mutex> lock(mtx);
+                cv.wait(lock, [this]() { return currentProcess != nullptr; });
+
+                if (currentProcess != nullptr) {
+                    executeProcess(currentProcess);
+                    currentProcess = nullptr;
+                }
             }
         });
     }
@@ -45,9 +51,17 @@ public:
 
         ostringstream oss;
         oss << "(" << put_time(&buf, "%m/%d/%Y %I:%M:%S%p") << ") "
-            << "Core:" << id << " Hello world from " << process->getProcessName() << "!";
-        process->executePrintCommands();
+            << "Core:" << id << " \"Hello world from " << process->getProcessName() << "!\"";
+        cout << oss.str() << endl;
+
+        process->createProcFile();
         isFree = true;
+    }
+
+    void assignProcess(Process* process) {
+        unique_lock<mutex> lock(mtx);
+        currentProcess = process;
+        cv.notify_one();
     }
 
     bool isCoreFree() {
