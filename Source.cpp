@@ -162,16 +162,17 @@ void handleInput() {
         // "screen -ls"
         else if (input.substr(0, 10) == "screen -ls") {
             std::cout << "Running processes:\n";
-            std::cout << "process05   (01/18/2024 09:15:22AM)    Core:  0    1235 / 5876\n";
-            std::cout << "process06   (01/18/2024 09:17:22AM)    Core:  1    3 / 5876\n";
-            std::cout << "process07   (01/18/2024 09:17:45AM)    Core:  2    9 / 1000\n";
-            std::cout << "process08   (01/18/2024 09:18:58AM)    Core:  3    12 / 80\n";
+            for (const auto& processPtr : scheduler.runningProcesses) {
+                std::cout << processPtr->name << "   (" << processPtr->timestamp << ")    Core:  "
+                    << processPtr->cpuCoreID << "    " << processPtr->getProgressString() << "\n";
+            }
 
+            // Print finished processes
             std::cout << "\nFinished processes:\n";
-            std::cout << "process01   (01/18/2024 09:00:21AM)    Finished    5876 / 5876\n";
-            std::cout << "process02   (01/18/2024 09:00:22AM)    Finished    5876 / 5876\n";
-            std::cout << "process03   (01/18/2024 09:00:42AM)    Finished    1000 / 1000\n";
-            std::cout << "process04   (01/18/2024 09:00:53AM)    Finished    80 / 80\n";
+            for (const auto& processPtr : scheduler.finishedProcesses) {
+                std::cout << processPtr->name << "   (" << processPtr->timestamp << ")    Finished    "
+                    << processPtr->totalWork << " / " << processPtr->totalWork << "\n";
+            }
 
             std::cout << "-------------------------------------------\n";
         }
