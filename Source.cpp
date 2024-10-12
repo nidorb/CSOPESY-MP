@@ -105,7 +105,7 @@ void handleInput() {
         getline(cin, input);
 
         if (input == "exit") {
-            isRunning = false;
+            return;
         }
         else if (input == "clear") {
             clearScreen();
@@ -161,7 +161,7 @@ void handleInput() {
 
         // "screen -ls"
         else if (input.substr(0, 10) == "screen -ls") {
-            std::cout << "Running processes:\n";
+            std::cout << "\n\nRunning processes:\n";
             for (const auto& processPtr : scheduler.runningProcesses) {
                 std::cout << processPtr->name << "   (" << processPtr->timestamp << ")    Core:  "
                     << processPtr->cpuCoreID << "    " << processPtr->getProgressString() << "\n";
@@ -174,7 +174,7 @@ void handleInput() {
                     << processPtr->totalWork << " / " << processPtr->totalWork << "\n";
             }
 
-            std::cout << "-------------------------------------------\n";
+            std::cout << "\n\n";
         }
 
         else {
