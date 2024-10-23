@@ -67,16 +67,15 @@ void drawConsole(Process console) {
     processInfo(console);
 
     string input;
-    bool isRunning = true;
 
-    while (isRunning) {
+    while (true) {
         cout << ">> ";
         getline(cin, input);
 
         if (input == "exit") {
             clearScreen();
             header();
-            isRunning = false;
+            return;
         }
         else {
             cout << "Unknown command \n";
@@ -84,23 +83,22 @@ void drawConsole(Process console) {
     }
 }
 
-Process* searchProcessByName(string name) {
-    for (Process* console : scheduler.readyProcesses) {
-        if (console->name == name) {
-            return console;
+Process* searchProcessByName(string name, vector<vector<Process*>>& processes) {
+    for (auto& vector : processes) {
+        for (Process* console : vector) {
+            if (console->name == name) {
+                return console;
+            }
         }
     }
-
     return nullptr;
 }
 
 
-
 void handleInput() {
     string input;
-    bool isRunning = true;
 
-    while (isRunning) {
+    while (true) {
         cout << "Enter command: ";
         getline(cin, input);
 
@@ -134,7 +132,8 @@ void handleInput() {
             string processName = input.substr(10);
 
             // Check if process exists
-            Process* res_console = searchProcessByName(processName);
+            vector<vector<Process*>> processes = { scheduler.readyProcesses, scheduler.runningProcesses, scheduler.finishedProcesses };
+            Process* res_console = searchProcessByName(processName, processes);
             if (res_console == nullptr) {
                 Process* console = new Process(processName, getCurDate());  // Dynamic memory allocation
                 drawConsole(*console);
@@ -150,7 +149,8 @@ void handleInput() {
             string processName = input.substr(10);
 
             // Check if process exists
-            Process* res_console = searchProcessByName(processName);
+            vector<vector<Process*>> processes = { scheduler.readyProcesses, scheduler.runningProcesses };
+            Process* res_console = searchProcessByName(processName, processes);
             if (res_console != nullptr) {
                 drawConsole(*res_console);  // Process exists, allow reopening
             }
