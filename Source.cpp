@@ -50,18 +50,18 @@ string getCurDate() {
 
 
 
-void processInfo(Process& console) {
+void processInfo(const shared_ptr<Process>& console) {
     int curInst = 0;  // placeholder
     int totalInst = 50;  // placeholder
 
-    cout << "PID: " << console.pid << endl;
-    cout << "Process: " << console.name << endl;
-    cout << "CPU Core: " << console.cpuCoreID << endl;
+    cout << "PID: " << console->pid << endl;
+    cout << "Process: " << console->name << endl;
+    cout << "CPU Core: " << console->cpuCoreID << endl;
     cout << "Instruction line: " << curInst << "/" << totalInst << endl;
-    cout << "Timestamp: " << console.timestamp << endl;
+    cout << "Timestamp: " << console->timestamp << endl;
 }
 
-void drawConsole(Process console) {
+void drawConsole(const shared_ptr<Process>& console) {
     clearScreen();
 
     processInfo(console);
@@ -83,9 +83,9 @@ void drawConsole(Process console) {
     }
 }
 
-Process* searchProcessByName(string name, vector<vector<Process*>>& processes) {
+shared_ptr<Process> searchProcessByName(const string& name, vector<vector<shared_ptr<Process>>>& processes) {
     for (auto& vector : processes) {
-        for (Process* console : vector) {
+        for (const shared_ptr<Process>& console : vector) {
             if (console->name == name) {
                 return console;
             }
@@ -103,6 +103,7 @@ void handleInput() {
         getline(cin, input);
 
         if (input == "exit") {
+            scheduler.isRunning = false;
             return;
         }
         else if (input == "clear") {
@@ -132,11 +133,11 @@ void handleInput() {
             string processName = input.substr(10);
 
             // Check if process exists
-            vector<vector<Process*>> processes = { scheduler.readyProcesses, scheduler.runningProcesses, scheduler.finishedProcesses };
-            Process* res_console = searchProcessByName(processName, processes);
+            vector<vector<shared_ptr<Process>>> processes = { scheduler.readyProcesses, scheduler.runningProcesses, scheduler.finishedProcesses };
+            shared_ptr<Process> res_console = searchProcessByName(processName, processes);
             if (res_console == nullptr) {
-                Process* console = new Process(processName, getCurDate());  // Dynamic memory allocation
-                drawConsole(*console);
+                shared_ptr<Process> console = make_shared<Process>(processName, getCurDate());
+                drawConsole(console);
                 scheduler.readyProcesses.push_back(console);  // Store the process console
             }
             else {
@@ -149,10 +150,11 @@ void handleInput() {
             string processName = input.substr(10);
 
             // Check if process exists
-            vector<vector<Process*>> processes = { scheduler.readyProcesses, scheduler.runningProcesses };
-            Process* res_console = searchProcessByName(processName, processes);
+            vector<vector<shared_ptr<Process>>> processes = { scheduler.readyProcesses, scheduler.runningProcesses, scheduler.finishedProcesses };
+
+            shared_ptr<Process> res_console = searchProcessByName(processName, processes);
             if (res_console != nullptr) {
-                drawConsole(*res_console);  // Process exists, allow reopening
+                drawConsole(res_console);  // Process exists, allow reopening
             }
             else {
                 cout << "Error: '" << processName << "' does not exist. Use 'screen -s <name>'.\n";
@@ -161,20 +163,20 @@ void handleInput() {
 
         // "screen -ls"
         else if (input.substr(0, 10) == "screen -ls") {
-            std::cout << "\n\nRunning processes:\n";
-            for (const auto& processPtr : scheduler.runningProcesses) {
-                std::cout << processPtr->name << "   (" << processPtr->timestamp << ")    Core:  "
+            cout << "\n\nRunning processes:\n";
+            for (const shared_ptr<Process>& processPtr : scheduler.runningProcesses) {
+                cout << processPtr->name << "   (" << processPtr->timestamp << ")    Core:  "
                     << processPtr->cpuCoreID << "    " << processPtr->getProgressString() << "\n";
             }
 
             // Print finished processes
-            std::cout << "\nFinished processes:\n";
-            for (const auto& processPtr : scheduler.finishedProcesses) {
-                std::cout << processPtr->name << "   (" << processPtr->timestamp << ")    Finished    "
+            cout << "\nFinished processes:\n";
+            for (const shared_ptr<Process>& processPtr : scheduler.finishedProcesses) {
+                cout << processPtr->name << "   (" << processPtr->timestamp << ")    Finished    "
                     << processPtr->totalWork << " / " << processPtr->totalWork << "\n";
             }
 
-            std::cout << "\n\n";
+            cout << "\n\n";
         }
 
         else {

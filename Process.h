@@ -23,7 +23,7 @@ public:
     static int next_pid;
 
     // Constructor
-    Process(string name, string timestamp) : 
+    Process(const std::string& name, const std::string& timestamp) : 
         name(name), timestamp(timestamp) {
         if (!name.empty()) {
             pid = next_pid++;

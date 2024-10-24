@@ -17,8 +17,8 @@ public:
     thread coreThread;
     condition_variable cv;
     mutex mtx;
-    Process* currentProcess;
-    std::function<void(Process*)> onProcessFinished;
+    shared_ptr<Process> currentProcess;
+    std::function<void(shared_ptr<Process>)> onProcessFinished;
 
     bool isRunning = true;
 
@@ -46,7 +46,7 @@ public:
             });
     }
 
-    void executeProcess(Process* process) {
+    void executeProcess(const shared_ptr<Process>& process) {
         if (process == nullptr) return;
 
         isFree = false;
@@ -56,7 +56,7 @@ public:
         isFree = true;
     }
 
-    void assignProcess(Process* process) {
+    void assignProcess(const shared_ptr<Process>& process) {
         unique_lock<mutex> lock(mtx);
         currentProcess = process;
         cv.notify_one();
