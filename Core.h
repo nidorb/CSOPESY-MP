@@ -1,3 +1,5 @@
+#pragma once
+
 #include <thread>
 #include <iostream>
 #include <chrono>
@@ -18,23 +20,24 @@ public:
     condition_variable cv;
     mutex mtx;
     shared_ptr<Process> currentProcess;
-    std::function<void(shared_ptr<Process>)> onProcessFinished;
+    function<void(shared_ptr<Process>)> onProcessPreempt;
 
     bool isRunning = true;
+    int quantum_cycles;
 
     Core(int id) : id(id), isFree(true), currentProcess(nullptr) {}
 
     void start() {
-        coreThread = std::thread([this]() {
+        coreThread = thread([this]() {
             while (isRunning) {
                 unique_lock<mutex> lock(mtx);
                 cv.wait(lock, [this]() { return currentProcess != nullptr || !isRunning; });
 
                 if (currentProcess != nullptr) {
-                    executeProcess(currentProcess);
+                    executeProcess(currentProcess, quantum_cycles);
 
-                    if (onProcessFinished) {
-                        onProcessFinished(currentProcess);
+                    if (onProcessPreempt) {
+                        onProcessPreempt(currentProcess);
                     }
 
                     currentProcess = nullptr;
@@ -46,19 +49,27 @@ public:
             });
     }
 
-    void executeProcess(const shared_ptr<Process>& process) {
+    void executeProcess(const shared_ptr<Process>& process, int quantum_cycles) {
         if (process == nullptr) return;
 
         isFree = false;
-        process->cpuCoreID = id;
+        process->setCPUCoreID(id);
 
-        process->createProcFile();
+        process->createProcFile(quantum_cycles);
         isFree = true;
     }
 
-    void assignProcess(const shared_ptr<Process>& process) {
+    void assignProcess(const shared_ptr<Process>& process, int quantum_cycles = -1) {
         unique_lock<mutex> lock(mtx);
         currentProcess = process;
+        
+        if (quantum_cycles == -1) {
+            this->quantum_cycles = process->getTotalWork();
+        }
+        else {
+            this->quantum_cycles = quantum_cycles;
+        }
+
         cv.notify_one();
     }
 

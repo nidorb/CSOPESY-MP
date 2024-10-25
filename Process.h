@@ -1,13 +1,12 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
+#include <mutex>
+
 using namespace std;
 
 class Process {
 public:
-    int pid;
-    string name, timestamp;
-
     enum ProcessState {
         READY,
         RUNNING,
@@ -15,28 +14,35 @@ public:
         FINISHED
     };
 
-    int commandCtr=0;
+private:
+    int pid;
+    string name, timestamp;
+
+    int commandCtr = 0;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
-    int totalWork=100;
+    int totalWork = 100;
     ProcessState currentState = READY;
 
+public:
     static int next_pid;
 
+    mutex mtx;
+
     // Constructor
-    Process(const std::string& name, const std::string& timestamp) : 
+    Process(const string& name, const string& timestamp) : 
         name(name), timestamp(timestamp) {
         if (!name.empty()) {
             pid = next_pid++;
         }
     }
 
-    void setRunningToFinished() {
+    /*void setRunningToFinished() {
         if (currentState == RUNNING) {
             if (commandCtr == totalWork) {
                 currentState = FINISHED;
             }
         }
-    }
+    }*/
 
     string getCurDateProc() {
         time_t now = time(0);
@@ -51,33 +57,79 @@ public:
         return date_time;
     }
 
-    void createProcFile() {
+    void createProcFile(int quantum_cycles) {
         ofstream logs;
-        logs.open(name + ".txt");
-        logs << "Process name: " << name << "\n";
-        logs << "Logs: \n\n";
+        string filename = name + ".txt";
 
-        // logs << totalWork << endl; // debug print
+        if (commandCtr == 0) {
+            logs.open(filename);
 
-        for (int i = 0; i < totalWork; i++) {
+            logs << "Process name: " << name << "\n";
+            logs << "Logs: \n\n";
+        }
+        else {
+            logs.open(filename, ios::app);
+        }
+
+        for (int i = 0; i < quantum_cycles; i++) {
+            if (commandCtr == totalWork) { break; }
+
             logs << getCurDateProc() << "   Core: " << cpuCoreID << "  \"Hello world from " << name << "!\"\n";
             commandCtr++;
             this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         logs.close();
-        setRunningToFinished();
+
+        if (commandCtr == totalWork) {
+            currentState = FINISHED;
+        }
+        else {
+            currentState = READY;
+        }
+
+        //setRunningToFinished();
     }
 
-    string getProcessName(){
+    string getProcessName() {
         return name;
     }
 
-    string getProgressString(){
-        return std::to_string(commandCtr) + " / " + std::to_string(totalWork);
+    string getProgressString() {
+        return to_string(commandCtr) + " / " + to_string(totalWork);
     }
 
+    int getPid() const {
+        return pid;
+    }
 
+    string getName() const {
+        return name;
+    }
+
+    string getTimestamp() const {
+        return timestamp;
+    }
+
+    int getCommandCtr() const {
+        return commandCtr;
+    }
+
+    int getCPUCoreID() const {
+        return cpuCoreID;
+    }
+
+    int getTotalWork() const {
+        return totalWork;
+    }
+
+    ProcessState getState() const {
+        return currentState;
+    }
+
+    void setCPUCoreID(int cpuCoreID) {
+        this->cpuCoreID = cpuCoreID;
+    }
 };
 
 #endif

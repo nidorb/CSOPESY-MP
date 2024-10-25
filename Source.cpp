@@ -4,13 +4,19 @@
 #include <vector>
 #include <thread>
 #include <fstream>
+#include <mutex>
+
 #include "Process.h"
+#include "RRScheduler.h"
+#include "FCFSScheduler.h"
 #include "Scheduler.h"
 
 using namespace std;
 
 const int NUM_CORES = 4;
-Scheduler scheduler(NUM_CORES);
+unique_ptr<Scheduler> scheduler;
+
+string SCHEDULER_ALGO = "fcfs";  // fcfs or rr
 
 int Process::next_pid = 0;
 
@@ -54,11 +60,11 @@ void processInfo(const shared_ptr<Process>& console) {
     int curInst = 0;  // placeholder
     int totalInst = 50;  // placeholder
 
-    cout << "PID: " << console->pid << endl;
-    cout << "Process: " << console->name << endl;
-    cout << "CPU Core: " << console->cpuCoreID << endl;
+    cout << "PID: " << console->getPid() << endl;
+    cout << "Process: " << console->getName() << endl;
+    cout << "CPU Core: " << console->getCPUCoreID() << endl;
     cout << "Instruction line: " << curInst << "/" << totalInst << endl;
-    cout << "Timestamp: " << console->timestamp << endl;
+    cout << "Timestamp: " << console->getTimestamp() << endl;
 }
 
 void drawConsole(const shared_ptr<Process>& console) {
@@ -86,7 +92,7 @@ void drawConsole(const shared_ptr<Process>& console) {
 shared_ptr<Process> searchProcessByName(const string& name, vector<vector<shared_ptr<Process>>>& processes) {
     for (auto& vector : processes) {
         for (const shared_ptr<Process>& console : vector) {
-            if (console->name == name) {
+            if (console->getName() == name) {
                 return console;
             }
         }
@@ -103,7 +109,7 @@ void handleInput() {
         getline(cin, input);
 
         if (input == "exit") {
-            scheduler.isRunning = false;
+            scheduler->isRunning = false;
             return;
         }
         else if (input == "clear") {
@@ -118,7 +124,7 @@ void handleInput() {
         }
         else if (input == "scheduler-test") {
             for (int i = 0; i < 10; i++) {
-                scheduler.readyProcesses.emplace_back(new Process("Process_" + to_string(i), getCurDate()));
+                scheduler->readyProcesses.emplace_back(new Process("Process_" + to_string(i), getCurDate()));
             }
         }
         else if (input == "scheduler-stop") {
@@ -133,12 +139,12 @@ void handleInput() {
             string processName = input.substr(10);
 
             // Check if process exists
-            vector<vector<shared_ptr<Process>>> processes = { scheduler.readyProcesses, scheduler.runningProcesses, scheduler.finishedProcesses };
+            vector<vector<shared_ptr<Process>>> processes = { scheduler->readyProcesses, scheduler->runningProcesses, scheduler->finishedProcesses };
             shared_ptr<Process> res_console = searchProcessByName(processName, processes);
             if (res_console == nullptr) {
                 shared_ptr<Process> console = make_shared<Process>(processName, getCurDate());
                 drawConsole(console);
-                scheduler.readyProcesses.push_back(console);  // Store the process console
+                scheduler->readyProcesses.push_back(console);  // Store the process console
             }
             else {
                 cout << "Error: '" << processName << "' name already exists.\n";
@@ -150,7 +156,7 @@ void handleInput() {
             string processName = input.substr(10);
 
             // Check if process exists
-            vector<vector<shared_ptr<Process>>> processes = { scheduler.readyProcesses, scheduler.runningProcesses, scheduler.finishedProcesses };
+            vector<vector<shared_ptr<Process>>> processes = { scheduler->readyProcesses, scheduler->runningProcesses, scheduler->finishedProcesses };
 
             shared_ptr<Process> res_console = searchProcessByName(processName, processes);
             if (res_console != nullptr) {
@@ -164,16 +170,20 @@ void handleInput() {
         // "screen -ls"
         else if (input.substr(0, 10) == "screen -ls") {
             cout << "\n\nRunning processes:\n";
-            for (const shared_ptr<Process>& processPtr : scheduler.runningProcesses) {
-                cout << processPtr->name << "   (" << processPtr->timestamp << ")    Core:  "
-                    << processPtr->cpuCoreID << "    " << processPtr->getProgressString() << "\n";
+            for (const shared_ptr<Process>& processPtr : scheduler->runningProcesses) {
+                if (processPtr) {
+                    cout << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Core:  "
+                        << processPtr->getCPUCoreID() << "    " << processPtr->getProgressString() << "\n";
+                }
             }
 
             // Print finished processes
             cout << "\nFinished processes:\n";
-            for (const shared_ptr<Process>& processPtr : scheduler.finishedProcesses) {
-                cout << processPtr->name << "   (" << processPtr->timestamp << ")    Finished    "
-                    << processPtr->totalWork << " / " << processPtr->totalWork << "\n";
+            for (const shared_ptr<Process>& processPtr : scheduler->finishedProcesses) {
+                if (processPtr) {
+                    cout << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Finished    "
+                        << processPtr->getProgressString() << "\n";
+                }
             }
 
             cout << "\n\n";
@@ -188,6 +198,17 @@ void handleInput() {
 
 
 int main() {
+    if (SCHEDULER_ALGO == "fcfs") {
+        scheduler = make_unique<FCFSScheduler>(NUM_CORES);
+    }
+    else if (SCHEDULER_ALGO == "rr") {
+        scheduler = make_unique<RRScheduler>(NUM_CORES);
+    }
+    else {
+        cout << "Error: Unknown scheduling algorithm." << endl;
+        return 0;
+    }
+
     header();
 
     thread inputThread(handleInput);
