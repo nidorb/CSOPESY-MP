@@ -34,11 +34,10 @@ public:
 		while (isRunning) {
 			// Check if a core is available to assign a process
 			for (int i = 0; i < numCores; i++) {
-				if (!readyProcesses.empty()) {
+				if (!readyQueue.empty()) {
 					if (cores[i]->isCoreFree()) {
-						shared_ptr<Process> curProcess = readyProcesses.front();
-						runningProcesses.push_back(curProcess);
-						readyProcesses.erase(readyProcesses.begin());
+						shared_ptr<Process> curProcess = readyQueue.front();
+						readyQueue.erase(readyQueue.begin());
 
 						// Assign process to CPU core
 						cores[i]->assignProcess(curProcess);
@@ -51,12 +50,6 @@ public:
 	}
 
 	void handleProcessPreempt(const shared_ptr<Process>& process) {
-		lock_guard<mutex> lock(mtx);
-
-		auto it = find(runningProcesses.begin(), runningProcesses.end(), process);
-		if (it != runningProcesses.end()) {
-			runningProcesses.erase(it);
-		}
-		finishedProcesses.push_back(process);
+		// FCFS cannot preempt
 	}
 };
