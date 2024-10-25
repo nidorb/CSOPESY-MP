@@ -14,7 +14,7 @@ public:
 
 	mutex mtx;
 
-	int quantum_cycles = 5;
+	int QUANTUM_CYCLES = 5;
 
 	RRScheduler(int NUM_CORES) : numCores(NUM_CORES) {
 		for (int i = 0; i < numCores; i++) {
@@ -43,7 +43,7 @@ public:
 						readyProcesses.erase(readyProcesses.begin());
 						
 						// Assign process to CPU core
-						cores[i]->assignProcess(curProcess, quantum_cycles);
+						cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 					}
 				}
 			}

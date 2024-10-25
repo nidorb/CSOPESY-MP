@@ -1,8 +1,6 @@
 #ifndef PROCESS_H
 #define PROCESS_H
 
-#include <mutex>
-
 using namespace std;
 
 class Process {
@@ -36,13 +34,14 @@ public:
         }
     }
 
-    /*void setRunningToFinished() {
-        if (currentState == RUNNING) {
-            if (commandCtr == totalWork) {
-                currentState = FINISHED;
-            }
+    void setPreemptState() {
+        if (commandCtr == totalWork) {
+            currentState = FINISHED;
         }
-    }*/
+        else {
+            currentState = READY;
+        }
+    }
 
     string getCurDateProc() {
         time_t now = time(0);
@@ -58,6 +57,8 @@ public:
     }
 
     void createProcFile(int quantum_cycles) {
+        currentState = RUNNING;
+
         ofstream logs;
         string filename = name + ".txt";
 
@@ -81,14 +82,7 @@ public:
 
         logs.close();
 
-        if (commandCtr == totalWork) {
-            currentState = FINISHED;
-        }
-        else {
-            currentState = READY;
-        }
-
-        //setRunningToFinished();
+        setPreemptState();
     }
 
     string getProcessName() {

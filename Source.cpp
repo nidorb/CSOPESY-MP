@@ -16,7 +16,7 @@ using namespace std;
 const int NUM_CORES = 4;
 unique_ptr<Scheduler> scheduler;
 
-string SCHEDULER_ALGO = "fcfs";  // fcfs or rr
+string SCHEDULER_ALGO = "rr";  // fcfs or rr
 
 int Process::next_pid = 0;
 
