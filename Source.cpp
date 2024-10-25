@@ -122,7 +122,7 @@ void generateProcesses() {
 void handleProcessGeneration() {
 	while (osRunning) {
 		generateProcesses();
-		this_thread::sleep_for(chrono::milliseconds(3000));
+		this_thread::sleep_for(chrono::seconds(cpuCycles));
 	}
 }
 
