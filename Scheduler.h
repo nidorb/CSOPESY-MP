@@ -9,9 +9,10 @@
 
 class Scheduler {
 public:
-    vector<shared_ptr<Process>> readyProcesses;  // Stores processes ready to be assigned to a CPU core
-    vector<shared_ptr<Process>> runningProcesses;  // Stores processes that are currently running
-    vector<shared_ptr<Process>> finishedProcesses;  // Stores processes that completed execution
+    vector<shared_ptr<Process>> readyQueue;  // Stores processes ready to be assigned to a CPU core
+
+    vector<shared_ptr<Process>> allProcesses;  // Store all processes
+
     bool isRunning = true;
 
     virtual void handleScheduler() = 0;
