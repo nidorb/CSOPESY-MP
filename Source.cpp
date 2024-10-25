@@ -20,6 +20,16 @@ string SCHEDULER_ALGO = "rr";  // fcfs or rr
 
 int Process::next_pid = 0;
 
+const int QUANTUM_CYCLES = 5;
+const int BATCH_PROCESS_FREQ = 1;
+const int MIN_INS = 1000;
+const int MAX_INS = 2000;
+const int DELAYS_PER_EXEC = 0;
+
+bool osRunning = false;
+int cpuCycles = 2;
+int processCtr = 0;
+
 void header()
 {
     cout << "\033[38;2;233;233;233m";
@@ -53,8 +63,6 @@ string getCurDate() {
 
     return date_time;
 }
-
-
 
 void processInfo(const shared_ptr<Process>& console) {
     int curInst = 0;  // placeholder
@@ -100,6 +108,24 @@ shared_ptr<Process> searchProcessByName(const string& name, vector<vector<shared
     return nullptr;
 }
 
+void generateProcesses() {
+    for (int i = 0; i < BATCH_PROCESS_FREQ; ++i) {
+        string processName = "Process_" + to_string(processCtr);
+        auto process = make_shared<Process>(processName, getCurDate());
+        scheduler->readyProcesses.push_back(process);
+        cout << "\nGenerated process: " << processName << "\n";
+        cout << "Process Ctr: " << processCtr << " pc: " << process->getPid() << endl;
+        processCtr++;
+    }
+}
+
+void handleProcessGeneration() {
+	while (osRunning) {
+		generateProcesses();
+		this_thread::sleep_for(chrono::milliseconds(3000));
+	}
+}
+
 
 void handleInput() {
     string input;
@@ -123,11 +149,12 @@ void handleInput() {
             cout << "screen command recognized. Doing something.\n";
         }
         else if (input == "scheduler-test") {
-            for (int i = 0; i < 10; i++) {
-                scheduler->readyProcesses.emplace_back(new Process("Process_" + to_string(i), getCurDate()));
-            }
+            osRunning = true;
+			thread processGenerationThread(handleProcessGeneration);
+			processGenerationThread.detach();
         }
         else if (input == "scheduler-stop") {
+            osRunning = false;
             cout << "scheduler-stop command recognized. Doing something.\n";
         }
         else if (input == "report-util") {
