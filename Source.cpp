@@ -157,7 +157,36 @@ void handleInput() {
             cout << "scheduler-stop command recognized. Doing something.\n";
         }
         else if (input == "report-util") {
-            cout << "report-util command recognized. Doing something.\n";
+            const string filePath = "csopesy-log.txt";
+            ofstream outFile(filePath);
+
+            if (!outFile) {
+                cerr << "Error opening file for writing." << endl;
+                return;
+            }
+            outFile << "\n----------------------------------------------\n";
+            outFile << "\n\nRunning processes:\n";
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
+                if (processPtr->getState() == Process::RUNNING) {
+                    outFile << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Core:  "
+                            << processPtr->getCPUCoreID() << "    " << processPtr->getProgressString() << "\n";
+                }
+            }
+
+            outFile << "\nFinished processes:\n";
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
+                if (processPtr->getState() == Process::FINISHED) {
+                    outFile << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Finished    "
+                            << processPtr->getProgressString() << "\n";
+                }
+            }
+
+            outFile << "\n\n";
+            outFile << "\n----------------------------------------------\n";
+
+            outFile.close();
+
+            cout << "Report generated at " << filePath << "!" << endl;
         }
 
         // "screen -s <name>"
@@ -193,6 +222,7 @@ void handleInput() {
 
         // "screen -ls"
         else if (input.substr(0, 10) == "screen -ls") {
+            cout << "\n----------------------------------------------\n";
             cout << "\n\nRunning processes:\n";
             for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::RUNNING) {
@@ -209,7 +239,7 @@ void handleInput() {
                         << processPtr->getProgressString() << "\n";
                 }
             }
-
+            cout << "\n----------------------------------------------\n";
             cout << "\n\n";
         }
 

@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "unordered_set": "cpp",
+    "iomanip": "cpp",
+    "iostream": "cpp",
+    "vector": "cpp",
+    "iosfwd": "cpp",
+    "ios": "cpp"
+  }
+}
