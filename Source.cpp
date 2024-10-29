@@ -13,22 +13,24 @@
 
 using namespace std;
 
-const int NUM_CORES = 4;
+int NUM_CORES = 4;
 unique_ptr<Scheduler> scheduler;
 
 string SCHEDULER_ALGO = "fcfs";  // fcfs or rr
 
 int Process::next_pid = 0;
 
-const int QUANTUM_CYCLES = 5;
-const int BATCH_PROCESS_FREQ = 3;
-const int MIN_INS = 1000;
-const int MAX_INS = 2000;
-const int DELAYS_PER_EXEC = 0;
+int QUANTUM_CYCLES = 5;
+int BATCH_PROCESS_FREQ = 1;
+int MIN_INS = 1000;
+int MAX_INS = 2000;
+int DELAYS_PER_EXEC = 0;
 
 bool osRunning = false;
 int cpuCycles = 2;
 int processCtr = 0;
+
+bool isInitialized = false;
 
 void header()
 {
@@ -46,7 +48,11 @@ void header()
 }
 
 void clearScreen() {
-    system("cls");
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
 }
 
 string getCurDate() {
@@ -127,6 +133,63 @@ void handleProcessGeneration() {
 	}
 }
 
+void initialize(const string& configFilePath) {
+    ifstream configFile(configFilePath);
+    if (!configFile) {
+        cerr << "Error opening config file." << endl;
+        return;
+    }
+
+    unordered_map<string, string> configMap;
+    string line;
+    while (getline(configFile, line)) {
+        istringstream iss(line);
+        string key;
+        string value;
+        if (iss >> key >> value) {
+            if (value.front() == '"' && value.back() == '"') {
+                value = value.substr(1, value.size() - 2);
+            }
+            configMap[key] = value;
+        }
+    }
+
+    if (configMap.find("num-cpu") != configMap.end()) {
+        NUM_CORES = stoi(configMap["num-cpu"]);
+    }
+    if (configMap.find("scheduler") != configMap.end()) {
+        SCHEDULER_ALGO = configMap["scheduler"];
+    }
+    if (configMap.find("quantum-cycles") != configMap.end()) {
+        QUANTUM_CYCLES = stoi(configMap["quantum-cycles"]);
+    }
+    if (configMap.find("batch-process-freq") != configMap.end()) {
+        BATCH_PROCESS_FREQ = stoi(configMap["batch-process-freq"]);
+    }
+    if (configMap.find("min-ins") != configMap.end()) {
+        MIN_INS = stoi(configMap["min-ins"]);
+    }
+    if (configMap.find("max-ins") != configMap.end()) {
+        MAX_INS = stoi(configMap["max-ins"]);
+    }
+    if (configMap.find("delays-per-exec") != configMap.end()) {
+        DELAYS_PER_EXEC = stoi(configMap["delays-per-exec"]);
+    }
+    
+    configFile.close();
+
+    cout << "Configurations initialized:" << endl;
+    cout << "NUM_CORES: " << NUM_CORES << endl;
+    cout << "SCHEDULER_ALGO: " << SCHEDULER_ALGO << endl;
+    cout << "QUANTUM_CYCLES: " << QUANTUM_CYCLES << endl;
+    cout << "BATCH_PROCESS_FREQ: " << BATCH_PROCESS_FREQ << endl;
+    cout << "MIN_INS: " << MIN_INS << endl;
+    cout << "MAX_INS: " << MAX_INS << endl;
+    cout << "DELAYS_PER_EXEC: " << DELAYS_PER_EXEC << endl;
+
+    isInitialized = true;
+}
+
 
 void handleInput() {
     string input;
@@ -140,12 +203,16 @@ void handleInput() {
             scheduler->isRunning = false;
             return;
         }
+        else if (!isInitialized && input != "initialize") {
+            cout << "Unknown command \n";
+            continue;
+        }
         else if (input == "clear") {
             clearScreen();
             header();
         }
         else if (input == "initialize") {
-            cout << "initialize command recognized. Doing something.\n";
+            initialize("config.txt");
         }
         else if (input == "screen") {
             cout << "screen command recognized. Doing something.\n";
@@ -167,8 +234,20 @@ void handleInput() {
                 cerr << "Error opening file for writing." << endl;
                 return;
             }
+            double coresUsed = 0;
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
+                if (processPtr->getState() == Process::RUNNING) {
+                    coresUsed++;
+                }
+            }
+
+            outFile.precision(2);
+            outFile << "CPU utilization: " << coresUsed / NUM_CORES * 100 << "%" << endl;
+            outFile << "Cores used: " << coresUsed << endl;
+            outFile << "Cores available: " << NUM_CORES - coresUsed << endl;
+        
             outFile << "\n----------------------------------------------\n";
-            outFile << "\n\nRunning processes:\n";
+            outFile << "Running processes:\n";
             for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::RUNNING) {
                     outFile << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Core:  "
@@ -224,9 +303,21 @@ void handleInput() {
         }
 
         // "screen -ls"
-        else if (input.substr(0, 10) == "screen -ls") {
+        else if (input.substr(0, 10) == "screen -ls") { 
+            double coresUsed = 0;
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
+                if (processPtr->getState() == Process::RUNNING) {
+                    coresUsed++;
+                }
+            }
+
+            cout.precision(2);
+            cout << "CPU utilization: " << coresUsed / NUM_CORES * 100 << "%" << endl;
+            cout << "Cores used: " << coresUsed << endl;
+            cout << "Cores available: " << NUM_CORES - coresUsed << endl;
+
             cout << "\n----------------------------------------------\n";
-            cout << "\n\nRunning processes:\n";
+            cout << "Running processes:\n";
             for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::RUNNING) {
                     cout << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Core:  "
