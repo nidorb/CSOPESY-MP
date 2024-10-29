@@ -16,12 +16,12 @@ using namespace std;
 const int NUM_CORES = 4;
 unique_ptr<Scheduler> scheduler;
 
-string SCHEDULER_ALGO = "rr";  // fcfs or rr
+string SCHEDULER_ALGO = "fcfs";  // fcfs or rr
 
 int Process::next_pid = 0;
 
 const int QUANTUM_CYCLES = 5;
-const int BATCH_PROCESS_FREQ = 1;
+const int BATCH_PROCESS_FREQ = 3;
 const int MIN_INS = 1000;
 const int MAX_INS = 2000;
 const int DELAYS_PER_EXEC = 0;
@@ -112,16 +112,18 @@ void generateProcesses() {
         auto process = make_shared<Process>(processName, getCurDate());
         scheduler->readyQueue.push_back(process);
         scheduler->allProcesses.push_back(process);
-        cout << "\nGenerated process: " << processName << "\n";
-        cout << "Process Ctr: " << processCtr << " pc: " << process->getPid() << endl;
+        //cout << "\nGenerated process: " << processName << "\n";
+        //cout << "Process Ctr: " << processCtr << " pc: " << process->getPid() << endl;
         processCtr++;
     }
 }
 
 void handleProcessGeneration() {
 	while (osRunning) {
+        //cout << "\nwaiting for end of Cpu Cycles ";
+        this_thread::sleep_for(chrono::seconds(cpuCycles));
+        //cout << "\n\nGenerating processes \n ";
 		generateProcesses();
-		this_thread::sleep_for(chrono::seconds(cpuCycles));
 	}
 }
 
@@ -130,7 +132,8 @@ void handleInput() {
     string input;
 
     while (true) {
-        cout << "Enter command: ";
+        //cout << "val" << cpuCycles;
+        cout << "\nEnter command: ";
         getline(cin, input);
 
         if (input == "exit") {
