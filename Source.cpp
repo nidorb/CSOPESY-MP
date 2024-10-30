@@ -303,9 +303,9 @@ void handleInput() {
             shared_ptr<Process> res_console = searchProcessByName(processName, { Process::READY, Process::RUNNING, Process::FINISHED });
             if (res_console == nullptr) {
                 shared_ptr<Process> console = make_shared<Process>(processName, getCurDate());
-                drawConsole(console);
                 scheduler->readyQueue.push_back(console);  // Store the process console
                 scheduler->allProcesses.push_back(console);
+                drawConsole(console);
             }
             else {
                 cout << "Error: '" << processName << "' name already exists.\n";
