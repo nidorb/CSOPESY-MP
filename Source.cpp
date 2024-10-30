@@ -72,14 +72,19 @@ string getCurDate() {
 }
 
 void processInfo(const shared_ptr<Process>& console) {
-    int curInst = 0;  // placeholder
-    int totalInst = 50;  // placeholder
+    string processName = console->getName();
 
-    cout << "PID: " << console->getPid() << endl;
-    cout << "Process: " << console->getName() << endl;
-    cout << "CPU Core: " << console->getCPUCoreID() << endl;
-    cout << "Instruction line: " << curInst << "/" << totalInst << endl;
-    cout << "Timestamp: " << console->getTimestamp() << endl;
+    cout << "Process: " << processName << endl;
+    cout << "ID: " << console->getPid() << endl << endl;
+    // Retrieve updated process information from the scheduler
+    shared_ptr<Process> updatedProcess = scheduler->getProcess(processName);
+    if (updatedProcess->getState() == Process::READY || updatedProcess->getState() == Process::RUNNING) {
+        cout << "Current Instruction line: " << updatedProcess->getCommandCtr() << endl;
+        cout << "Lines of code: " << updatedProcess->getTotalWork() << endl << endl;
+    }
+    else if (updatedProcess->getState() == Process::FINISHED) {
+        cout << "Finished!" << endl;
+    }
 }
 
 void drawConsole(const shared_ptr<Process>& console) {
@@ -90,7 +95,7 @@ void drawConsole(const shared_ptr<Process>& console) {
     string input;
 
     while (true) {
-        cout << ">> ";
+        cout << "root:\>> ";
         getline(cin, input);
 
         if (input == "exit") {
@@ -98,6 +103,11 @@ void drawConsole(const shared_ptr<Process>& console) {
             header();
             return;
         }
+
+        else if (input == "process-smi") {
+            processInfo(console);
+        }
+
         else {
             cout << "Unknown command \n";
         }
