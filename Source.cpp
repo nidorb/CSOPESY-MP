@@ -77,12 +77,12 @@ void processInfo(const shared_ptr<Process>& console) {
     cout << "Process: " << processName << endl;
     cout << "ID: " << console->getPid() << endl << endl;
     // Retrieve updated process information from the scheduler
-    shared_ptr<Process> updatedProcess = scheduler->getProcess(processName);
-    if (updatedProcess->getState() == Process::READY || updatedProcess->getState() == Process::RUNNING) {
-        cout << "Current Instruction line: " << updatedProcess->getCommandCtr() << endl;
-        cout << "Lines of code: " << updatedProcess->getTotalWork() << endl << endl;
+   // shared_ptr<Process> updatedProcess = scheduler->getProcess(processName);
+    if (console->getState() == Process::READY || console->getState() == Process::RUNNING) {
+        cout << "Current Instruction line: " << console->getCommandCtr() << endl;
+        cout << "Lines of code: " << console->getTotalWork() << endl << endl;
     }
-    else if (updatedProcess->getState() == Process::FINISHED) {
+    else if (console->getState() == Process::FINISHED) {
         cout << "Finished!" << endl;
     }
 }
