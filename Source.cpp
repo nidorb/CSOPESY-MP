@@ -239,9 +239,7 @@ void handleInput() {
         else if (input == "initialize") {
             initialize("config.txt");
         }
-        else if (input == "screen") {
-            cout << "screen command recognized. Doing something.\n";
-        }
+        
         else if (input == "scheduler-test") {
             osRunning = true;
             thread processGenerationThread(handleProcessGeneration);
@@ -323,7 +321,7 @@ void handleInput() {
                 drawConsole(res_console);  // Process exists, allow reopening
             }
             else {
-                cout << "Error: '" << processName << "' does not exist. Use 'screen -s <name>'.\n";
+                cout << "\nProcess '" << processName << "' not found.\n";
             }
         }
 
