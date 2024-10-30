@@ -256,7 +256,7 @@ void handleInput() {
             }
 
             outFile.precision(2);
-            outFile << "CPU utilization: " << (coresUsed * 100.0) / NUM_CORES << "%" << endl;
+            outFile << "CPU utilization: " << static_cast<int>(coresUsed * 100 / NUM_CORES) << "%" << endl;
             outFile << "Cores used: " << coresUsed << endl;
             outFile << "Cores available: " << NUM_CORES - coresUsed << endl;
         
@@ -326,7 +326,7 @@ void handleInput() {
             }
 
             cout.precision(2);
-            cout << "CPU utilization: " << coresUsed / NUM_CORES * 100 << "%" << endl;
+            cout << "CPU utilization: " << static_cast<int>(coresUsed * 100 / NUM_CORES) << "%" << endl;
             cout << "Cores used: " << coresUsed << endl;
             cout << "Cores available: " << NUM_CORES - coresUsed << endl;
 
