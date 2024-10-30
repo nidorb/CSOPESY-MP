@@ -83,7 +83,7 @@ void processInfo(const shared_ptr<Process>& console) {
         cout << "Lines of code: " << console->getTotalWork() << endl << endl;
     }
     else if (console->getState() == Process::FINISHED) {
-        cout << "Finished!" << endl;
+        cout << "Finished!" << endl << endl;
     }
 }
 
@@ -105,6 +105,7 @@ void drawConsole(const shared_ptr<Process>& console) {
         }
 
         else if (input == "process-smi") {
+            cout << endl;
             processInfo(console);
         }
 
