@@ -14,24 +14,24 @@
 
 using namespace std;
 
-int NUM_CORES = 4;
+int NUM_CORES;
 unique_ptr<Scheduler> scheduler;
 
-string SCHEDULER_ALGO = "fcfs";  // fcfs or rr
+string SCHEDULER_ALGO;  // fcfs or rr
 
 int Process::next_pid = 0;
 
-int QUANTUM_CYCLES = 5;
-int BATCH_PROCESS_FREQ = 1;
-int MIN_INS = 1000;
-int MAX_INS = 2000;
-int DELAYS_PER_EXEC = 0;
+int QUANTUM_CYCLES;
+int BATCH_PROCESS_FREQ;
+int MIN_INS;
+int MAX_INS;
+int DELAYS_PER_EXEC;
 
 bool osRunning = false;
 int cpuCycles = 2;
 int processCtr = 0;
 
-bool isInitialized = false;
+int isInitialized = 0;
 
 void header()
 {
@@ -188,7 +188,20 @@ void initialize(const string& configFilePath) {
     cout << "MAX_INS: " << MAX_INS << endl;
     cout << "DELAYS_PER_EXEC: " << DELAYS_PER_EXEC << endl;
 
-    isInitialized = true;
+    isInitialized++;
+
+    if (isInitialized == 1) {
+        if (SCHEDULER_ALGO == "fcfs") {
+            scheduler = make_unique<FCFSScheduler>(NUM_CORES);
+        }
+        else if (SCHEDULER_ALGO == "rr") {
+            scheduler = make_unique<RRScheduler>(NUM_CORES);
+        }
+        else {
+            cout << "Error: Unknown scheduling algorithm." << endl;
+            isInitialized = 0;
+        }
+    }
 }
 
 
@@ -204,7 +217,7 @@ void handleInput() {
             scheduler->isRunning = false;
             return;
         }
-        else if (!isInitialized && input != "initialize") {
+        else if (isInitialized == 0 && input != "initialize") {
             cout << "Unknown command \n";
             continue;
         }
@@ -243,7 +256,7 @@ void handleInput() {
             }
 
             outFile.precision(2);
-            outFile << "CPU utilization: " << coresUsed / NUM_CORES * 100 << "%" << endl;
+            outFile << "CPU utilization: " << (coresUsed * 100.0) / NUM_CORES << "%" << endl;
             outFile << "Cores used: " << coresUsed << endl;
             outFile << "Cores available: " << NUM_CORES - coresUsed << endl;
         
@@ -347,16 +360,6 @@ void handleInput() {
 
 
 int main() {
-    if (SCHEDULER_ALGO == "fcfs") {
-        scheduler = make_unique<FCFSScheduler>(NUM_CORES);
-    }
-    else if (SCHEDULER_ALGO == "rr") {
-        scheduler = make_unique<RRScheduler>(NUM_CORES);
-    }
-    else {
-        cout << "Error: Unknown scheduling algorithm." << endl;
-        return 0;
-    }
 
     header();
 
