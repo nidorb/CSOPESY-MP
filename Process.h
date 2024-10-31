@@ -18,11 +18,13 @@ private:
 
     int commandCtr = 0;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
-    int totalWork = 100;
+    int totalWork;
     ProcessState currentState = READY;
 
 public:
     static int next_pid;
+    static int MIN_INS;
+    static int MAX_INS;
 
     mutex mtx;
 
@@ -30,6 +32,7 @@ public:
     Process(const string& name, const string& timestamp) : 
         name(name), timestamp(timestamp) {
         if (!name.empty()) {
+            totalWork = rand() % (MAX_INS - MIN_INS + 1) + MIN_INS;
             pid = next_pid++;
         }
     }

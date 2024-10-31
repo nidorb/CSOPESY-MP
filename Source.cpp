@@ -20,6 +20,8 @@ unique_ptr<Scheduler> scheduler;
 string SCHEDULER_ALGO;  // fcfs or rr
 
 int Process::next_pid = 0;
+int Process::MIN_INS;
+int Process::MAX_INS;
 
 int QUANTUM_CYCLES;
 int BATCH_PROCESS_FREQ;
@@ -95,7 +97,7 @@ void drawConsole(const shared_ptr<Process>& console) {
     string input;
 
     while (true) {
-        cout << "root:\>> ";
+        cout << "root:\\> ";
         getline(cin, input);
 
         if (input == "exit") {
@@ -198,6 +200,9 @@ void initialize(const string& configFilePath) {
     cout << "MIN_INS: " << MIN_INS << endl;
     cout << "MAX_INS: " << MAX_INS << endl;
     cout << "DELAYS_PER_EXEC: " << DELAYS_PER_EXEC << endl;
+
+    Process::MIN_INS = MIN_INS;
+    Process::MAX_INS = MAX_INS;
 
     isInitialized++;
 
