@@ -29,11 +29,13 @@ public:
     mutex mtx;
 
     // Constructor
-    Process(const string& name, const string& timestamp) : 
+    Process(const string& name, const string& timestamp) :
         name(name), timestamp(timestamp) {
-        if (!name.empty()) {
-            totalWork = rand() % (MAX_INS - MIN_INS + 1) + MIN_INS;
-            pid = next_pid++;
+        totalWork = rand() % (MAX_INS - MIN_INS + 1) + MIN_INS;
+        pid = next_pid++;
+
+        if (name.empty()) {
+            this->name = "Process_" + to_string(pid);
         }
     }
 

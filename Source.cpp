@@ -24,6 +24,7 @@ int Process::MIN_INS;
 int Process::MAX_INS;
 
 int RRScheduler::QUANTUM_CYCLES;
+int Scheduler::BATCH_PROCESS_FREQ;
 
 int QUANTUM_CYCLES;
 int BATCH_PROCESS_FREQ;
@@ -128,27 +129,6 @@ shared_ptr<Process> searchProcessByName(const string& name, const vector<Process
     return nullptr;
 }
 
-void generateProcesses() {
-    for (int i = 0; i < BATCH_PROCESS_FREQ; ++i) {
-        string processName = "Process_" + to_string(processCtr);
-        auto process = make_shared<Process>(processName, getCurDate());
-        scheduler->readyQueue.push_back(process);
-        scheduler->allProcesses.push_back(process);
-        //cout << "\nGenerated process: " << processName << "\n";
-        //cout << "Process Ctr: " << processCtr << " pc: " << process->getPid() << endl;
-        processCtr++;
-    }
-}
-
-void handleProcessGeneration() {
-	while (osRunning) {
-        //cout << "\nwaiting for end of Cpu Cycles ";
-        this_thread::sleep_for(chrono::seconds(cpuCycles));
-        //cout << "\n\nGenerating processes \n ";
-		generateProcesses();
-	}
-}
-
 void initialize(const string& configFilePath) {
     ifstream configFile(configFilePath);
     if (!configFile) {
@@ -207,6 +187,7 @@ void initialize(const string& configFilePath) {
     Process::MAX_INS = MAX_INS;
 
     RRScheduler::QUANTUM_CYCLES = QUANTUM_CYCLES;
+    Scheduler::BATCH_PROCESS_FREQ = BATCH_PROCESS_FREQ;
 
     isInitialized++;
 
@@ -250,14 +231,11 @@ void handleInput() {
         }
         
         else if (input == "scheduler-test") {
-            osRunning = true;
-            thread processGenerationThread(handleProcessGeneration);
-            processGenerationThread.detach();
-
-            cout << "Started generating dummy processes.\n";
+            scheduler->osRunning = true;
+            cout << "Generating dummy processes.\n";
         }
         else if (input == "scheduler-stop") {
-            osRunning = false;
+            scheduler->osRunning = false;
             cout << "Stopped generating dummy processes.\n";
         }
         else if (input == "report-util") {
@@ -305,7 +283,7 @@ void handleInput() {
         }
 
         // "screen -s <name>"
-        else if (input.substr(0, 10) == "screen -s " && input.length() > 10) {
+        else if (input.substr(0, 10) == "screen -s " && input.length() > 10 && input.substr(10, 1) != " ") {
             string processName = input.substr(10);
 
             // Check if process exists
