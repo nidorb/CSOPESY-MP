@@ -56,14 +56,6 @@ public:
 		}
 	}
 
-	void generateProcesses() {
-		if (cpuTicks % Scheduler::BATCH_PROCESS_FREQ == 0) {
-			auto process = make_shared<Process>("");
-			readyQueue.push_back(process);
-			allProcesses.push_back(process);
-		}
-	}
-
 	void handleProcessPreempt(const shared_ptr<Process>& process) {
 		lock_guard<mutex> lock(mtx);
 

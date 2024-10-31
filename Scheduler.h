@@ -22,4 +22,12 @@ public:
     virtual void handleScheduler() = 0;
     virtual void handleProcessPreempt(const std::shared_ptr<Process>& process) = 0;
     virtual ~Scheduler() {}
+
+    void generateProcesses() {
+        if (cpuTicks % Scheduler::BATCH_PROCESS_FREQ == 0) {
+            auto process = make_shared<Process>("");
+            readyQueue.push_back(process);
+            allProcesses.push_back(process);
+        }
+    }
 };
