@@ -32,8 +32,6 @@ int MAX_INS;
 int DELAYS_PER_EXEC;
 
 bool osRunning = false;
-int cpuCycles = 2;
-int processCtr = 0;
 
 int isInitialized = 0;
 
@@ -194,15 +192,16 @@ void handleInput() {
     string input;
 
     while (true) {
-        //cout << "val" << cpuCycles;
         cout << "\nroot:\\> ";
         getline(cin, input);
 
         if (input == "exit") {
-            scheduler->isRunning = false;
+            if (isInitialized) {
+                scheduler->isRunning = false;
+            }
             return;
         }
-        else if (isInitialized == 0 && input != "initialize") {
+        else if (!isInitialized && input != "initialize") {
             cout << "Unknown command \n";
             continue;
         }
