@@ -14,7 +14,7 @@ public:
 
 	mutex mtx;
 
-	int QUANTUM_CYCLES = 5;
+	static int QUANTUM_CYCLES;
 
 	RRScheduler(int NUM_CORES) : numCores(NUM_CORES) {
 		for (int i = 0; i < numCores; i++) {

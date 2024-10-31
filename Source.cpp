@@ -23,6 +23,8 @@ int Process::next_pid = 0;
 int Process::MIN_INS;
 int Process::MAX_INS;
 
+int RRScheduler::QUANTUM_CYCLES;
+
 int QUANTUM_CYCLES;
 int BATCH_PROCESS_FREQ;
 int MIN_INS;
@@ -203,6 +205,8 @@ void initialize(const string& configFilePath) {
 
     Process::MIN_INS = MIN_INS;
     Process::MAX_INS = MAX_INS;
+
+    RRScheduler::QUANTUM_CYCLES = QUANTUM_CYCLES;
 
     isInitialized++;
 
