@@ -21,6 +21,7 @@ string SCHEDULER_ALGO;  // fcfs or rr
 int Process::next_pid = 0;
 int Process::MIN_INS;
 int Process::MAX_INS;
+int Process::DELAYS_PER_EXEC;
 
 int RRScheduler::QUANTUM_CYCLES;
 int Scheduler::BATCH_PROCESS_FREQ;
@@ -167,6 +168,7 @@ void initialize(const string& configFilePath) {
 
     Process::MIN_INS = MIN_INS;
     Process::MAX_INS = MAX_INS;
+    Process::DELAYS_PER_EXEC = DELAYS_PER_EXEC;
 
     RRScheduler::QUANTUM_CYCLES = QUANTUM_CYCLES;
     Scheduler::BATCH_PROCESS_FREQ = BATCH_PROCESS_FREQ;

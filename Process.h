@@ -21,10 +21,15 @@ private:
     int totalWork;
     ProcessState currentState = READY;
 
+    int quantumCtr;
+    int delayCtr;
+
 public:
     static int next_pid;
     static int MIN_INS;
     static int MAX_INS;
+
+    static int DELAYS_PER_EXEC;
 
     mutex mtx;
 
@@ -92,11 +97,22 @@ public:
             logs.open(filename, ios::app);
         }
 
-        for (int i = 0; i < quantum_cycles; i++) {
+        quantumCtr = 0;
+        delayCtr = DELAYS_PER_EXEC;
+        while (quantumCtr < quantum_cycles) {
             if (commandCtr == totalWork) { break; }
 
-            logs << getCurDateProc() << "   Core: " << cpuCoreID << "  \"Hello world from " << name << "!\"\n";
-            commandCtr++;
+            if (delayCtr > 0) {
+                delayCtr--;
+            }
+            else {
+                logs << getCurDateProc() << "   Core: " << cpuCoreID << "  \"Hello world from " << name << "!\"\n";
+                commandCtr++;
+
+                delayCtr = DELAYS_PER_EXEC;
+                quantumCtr++;
+            }
+
             this_thread::sleep_for(chrono::milliseconds(100));
         }
 
