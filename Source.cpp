@@ -226,7 +226,7 @@ void handleInput() {
 
     while (true) {
         //cout << "val" << cpuCycles;
-        cout << "\nEnter command: ";
+        cout << "\nroot:\\> ";
         getline(cin, input);
 
         if (input == "exit") {
@@ -249,10 +249,12 @@ void handleInput() {
             osRunning = true;
             thread processGenerationThread(handleProcessGeneration);
             processGenerationThread.detach();
+
+            cout << "Started generating dummy processes.\n";
         }
         else if (input == "scheduler-stop") {
             osRunning = false;
-            cout << "scheduler-stop command recognized. Doing something.\n";
+            cout << "Stopped generating dummy processes.\n";
         }
         else if (input == "report-util") {
             const string filePath = "csopesy-log.txt";
@@ -291,8 +293,7 @@ void handleInput() {
                 }
             }
 
-            outFile << "\n\n";
-            outFile << "\n----------------------------------------------\n";
+            outFile << "----------------------------------------------\n";
 
             outFile.close();
 
@@ -361,8 +362,7 @@ void handleInput() {
                         << processPtr->getProgressString() << "\n";
                 }
             }
-            cout << "\n----------------------------------------------\n";
-            cout << "\n\n";
+            cout << "----------------------------------------------\n";
         }
 
         else {
