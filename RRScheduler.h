@@ -56,29 +56,11 @@ public:
 		}
 	}
 
-	string getCurDate() {
-		time_t now = time(0);
-		struct tm tstruct;
-		#ifdef _WIN32
-				localtime_s(&tstruct, &now);
-		#else
-				localtime_r(&now, &tstruct);
-		#endif
-
-		char date_time[100];
-		strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
-
-		return date_time;
-	}
-
 	void generateProcesses() {
 		if (cpuTicks % Scheduler::BATCH_PROCESS_FREQ == 0) {
-			//string processName = "Process_" + to_string(processCtr);
-			auto process = make_shared<Process>("", getCurDate());
+			auto process = make_shared<Process>("");
 			readyQueue.push_back(process);
 			allProcesses.push_back(process);
-			//cout << "\nGenerated process: " << processName << "\n";
-			//cout << "Process Ctr: " << processCtr << " pc: " << process->getPid() << endl;
 		}
 	}
 

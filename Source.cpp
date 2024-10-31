@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <ctime>
 #include <vector>
 #include <thread>
 #include <fstream>
@@ -59,21 +58,6 @@ void clearScreen() {
     #else
         system("clear");
     #endif
-}
-
-string getCurDate() {
-    time_t now = time(0);
-    struct tm tstruct;
-    #ifdef _WIN32
-        localtime_s(&tstruct, &now);
-    #else
-        localtime_r(&now, &tstruct);
-    #endif
-
-    char date_time[100];
-    strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
-
-    return date_time;
 }
 
 void processInfo(const shared_ptr<Process>& console) {
@@ -289,7 +273,7 @@ void handleInput() {
             // Check if process exists
             shared_ptr<Process> res_console = searchProcessByName(processName, { Process::READY, Process::RUNNING, Process::FINISHED });
             if (res_console == nullptr) {
-                shared_ptr<Process> console = make_shared<Process>(processName, getCurDate());
+                shared_ptr<Process> console = make_shared<Process>(processName);
                 scheduler->readyQueue.push_back(console);  // Store the process console
                 scheduler->allProcesses.push_back(console);
                 drawConsole(console);

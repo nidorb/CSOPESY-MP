@@ -29,14 +29,29 @@ public:
     mutex mtx;
 
     // Constructor
-    Process(const string& name, const string& timestamp) :
-        name(name), timestamp(timestamp) {
+    Process(const string& name) :
+        name(name), timestamp(getCurDate()) {
         totalWork = rand() % (MAX_INS - MIN_INS + 1) + MIN_INS;
         pid = next_pid++;
 
         if (name.empty()) {
             this->name = "Process_" + to_string(pid);
         }
+    }
+
+    string getCurDate() {
+        time_t now = time(0);
+        struct tm tstruct;
+        #ifdef _WIN32
+                localtime_s(&tstruct, &now);
+        #else
+                localtime_r(&now, &tstruct);
+        #endif
+
+        char date_time[100];
+        strftime(date_time, sizeof(date_time), "%m/%d/%Y, %I:%M:%S %p", &tstruct);
+
+        return date_time;
     }
 
     void setPreemptState() {
