@@ -33,6 +33,11 @@ uint64_t MIN_INS;
 uint64_t MAX_INS;
 uint64_t DELAYS_PER_EXEC;
 
+const uint64_t MAX_NUM_CPU = 128;
+const uint64_t MIN_RANGE = 1;
+const uint64_t MIN_DELAY_PER_EXEC = 0;
+const uint64_t MAX_RANGE = static_cast<uint64_t>(UINT32_MAX) + 1;
+
 bool osRunning = false;
 
 int isInitialized = 0;
@@ -139,26 +144,68 @@ void initialize(const string& configFilePath) {
         }
     }
 
-    if (configMap.find("num-cpu") != configMap.end()) {
-        NUM_CORES = stoi(configMap["num-cpu"]);
+    try {
+        if (configMap.find("num-cpu") != configMap.end()) {
+            NUM_CORES = stoi(configMap["num-cpu"]);
+            if (NUM_CORES < MIN_RANGE || NUM_CORES > MAX_NUM_CPU) {
+                throw out_of_range("num-cpu out of range. Must be between 1 and 128.");
+            }
+        }
+        else throw invalid_argument("num-cpu not found in config file.");
+
+        if (configMap.find("scheduler") != configMap.end()) {
+            SCHEDULER_ALGO = configMap["scheduler"];
+            if (SCHEDULER_ALGO != "fcfs" && SCHEDULER_ALGO != "rr") {
+                throw invalid_argument("Invalid scheduler. Must be 'fcfs' or 'rr'.");
+            }
+        }
+        else throw invalid_argument("scheduler not found in config file.");
+
+        if (configMap.find("quantum-cycles") != configMap.end()) {
+            QUANTUM_CYCLES = stoull(configMap["quantum-cycles"]);
+            if (QUANTUM_CYCLES < MIN_RANGE || QUANTUM_CYCLES > MAX_RANGE) {
+                throw out_of_range("quantum-cycles out of range.");
+            }
+        }
+        else throw invalid_argument("quantum-cycles not found in config file.");
+
+        if (configMap.find("batch-process-freq") != configMap.end()) {
+            BATCH_PROCESS_FREQ = stoull(configMap["batch-process-freq"]);
+            if (BATCH_PROCESS_FREQ < MIN_RANGE || BATCH_PROCESS_FREQ > MAX_RANGE) {
+                throw out_of_range("batch-process-freq out of range.");
+            }
+        }
+        else throw invalid_argument("batch-process-freq not found in config file.");
+
+        if (configMap.find("min-ins") != configMap.end()) {
+            MIN_INS = stoull(configMap["min-ins"]);
+            if (MIN_INS < MIN_RANGE || MIN_INS > MAX_RANGE) {
+                throw out_of_range("min-ins out of range.");
+            }
+        }
+        else throw invalid_argument("min-ins not found in config file.");
+
+        if (configMap.find("max-ins") != configMap.end()) {
+            MAX_INS = stoull(configMap["max-ins"]);
+            if (MAX_INS < MIN_RANGE || MAX_INS > MAX_RANGE) {
+                throw out_of_range("max-ins out of range.");
+            }
+        }
+        else throw invalid_argument("max-ins not found in config file.");
+
+        if (configMap.find("delays-per-exec") != configMap.end()) {
+            DELAYS_PER_EXEC = stoull(configMap["delays-per-exec"]);
+            if (DELAYS_PER_EXEC < MIN_DELAY_PER_EXEC || DELAYS_PER_EXEC > MAX_RANGE) {
+                throw out_of_range("delays-per-exec out of range.");
+            }
+        }
+        else throw invalid_argument("delays-per-exec not found in config file.");
+
     }
-    if (configMap.find("scheduler") != configMap.end()) {
-        SCHEDULER_ALGO = configMap["scheduler"];
-    }
-    if (configMap.find("quantum-cycles") != configMap.end()) {
-        QUANTUM_CYCLES = stoull(configMap["quantum-cycles"]);
-    }
-    if (configMap.find("batch-process-freq") != configMap.end()) {
-        BATCH_PROCESS_FREQ = stoull(configMap["batch-process-freq"]);
-    }
-    if (configMap.find("min-ins") != configMap.end()) {
-        MIN_INS = stoull(configMap["min-ins"]);
-    }
-    if (configMap.find("max-ins") != configMap.end()) {
-        MAX_INS = stoull(configMap["max-ins"]);
-    }
-    if (configMap.find("delays-per-exec") != configMap.end()) {
-        DELAYS_PER_EXEC = stoull(configMap["delays-per-exec"]);
+    catch (const exception& e) {
+        cerr << "Configuration error: " << e.what() << endl;
+        configFile.close();
+        return;
     }
     
     configFile.close();
