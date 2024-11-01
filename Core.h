@@ -23,7 +23,7 @@ public:
     function<void(shared_ptr<Process>)> onProcessPreempt;
 
     bool isRunning = true;
-    int quantum_cycles;
+    uint64_t quantum_cycles;
 
     Core(int id) : id(id), isFree(true), currentProcess(nullptr) {}
 
@@ -49,7 +49,7 @@ public:
             });
     }
 
-    void executeProcess(const shared_ptr<Process>& process, int quantum_cycles) {
+    void executeProcess(const shared_ptr<Process>& process, uint64_t quantum_cycles) {
         if (process == nullptr) return;
 
         isFree = false;
@@ -59,7 +59,7 @@ public:
         isFree = true;
     }
 
-    void assignProcess(const shared_ptr<Process>& process, int quantum_cycles = -1) {
+    void assignProcess(const shared_ptr<Process>& process, uint64_t quantum_cycles = -1) {
         unique_lock<mutex> lock(mtx);
         currentProcess = process;
         

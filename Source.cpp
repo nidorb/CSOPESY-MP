@@ -5,6 +5,7 @@
 #include <fstream>
 #include <mutex>
 #include <unordered_map>
+#include <cstdint>
 
 #include "Process.h"
 #include "RRScheduler.h"
@@ -19,18 +20,18 @@ unique_ptr<Scheduler> scheduler;
 string SCHEDULER_ALGO;  // fcfs or rr
 
 int Process::next_pid = 0;
-int Process::MIN_INS;
-int Process::MAX_INS;
-int Process::DELAYS_PER_EXEC;
+uint64_t Process::MIN_INS;
+uint64_t Process::MAX_INS;
+uint64_t Process::DELAYS_PER_EXEC;
 
-int RRScheduler::QUANTUM_CYCLES;
-int Scheduler::BATCH_PROCESS_FREQ;
+uint64_t RRScheduler::QUANTUM_CYCLES;
+uint64_t Scheduler::BATCH_PROCESS_FREQ;
 
-int QUANTUM_CYCLES;
-int BATCH_PROCESS_FREQ;
-int MIN_INS;
-int MAX_INS;
-int DELAYS_PER_EXEC;
+uint64_t QUANTUM_CYCLES;
+uint64_t BATCH_PROCESS_FREQ;
+uint64_t MIN_INS;
+uint64_t MAX_INS;
+uint64_t DELAYS_PER_EXEC;
 
 bool osRunning = false;
 
@@ -145,19 +146,19 @@ void initialize(const string& configFilePath) {
         SCHEDULER_ALGO = configMap["scheduler"];
     }
     if (configMap.find("quantum-cycles") != configMap.end()) {
-        QUANTUM_CYCLES = stoi(configMap["quantum-cycles"]);
+        QUANTUM_CYCLES = stoull(configMap["quantum-cycles"]);
     }
     if (configMap.find("batch-process-freq") != configMap.end()) {
-        BATCH_PROCESS_FREQ = stoi(configMap["batch-process-freq"]);
+        BATCH_PROCESS_FREQ = stoull(configMap["batch-process-freq"]);
     }
     if (configMap.find("min-ins") != configMap.end()) {
-        MIN_INS = stoi(configMap["min-ins"]);
+        MIN_INS = stoull(configMap["min-ins"]);
     }
     if (configMap.find("max-ins") != configMap.end()) {
-        MAX_INS = stoi(configMap["max-ins"]);
+        MAX_INS = stoull(configMap["max-ins"]);
     }
     if (configMap.find("delays-per-exec") != configMap.end()) {
-        DELAYS_PER_EXEC = stoi(configMap["delays-per-exec"]);
+        DELAYS_PER_EXEC = stoull(configMap["delays-per-exec"]);
     }
     
     configFile.close();
@@ -250,8 +251,8 @@ void handleInput() {
 
             outFile.precision(2);
             outFile << "CPU utilization: " << static_cast<int>(coresUsed * 100 / NUM_CORES) << "%" << endl;
-            outFile << "Cores used: " << coresUsed << endl;
-            outFile << "Cores available: " << NUM_CORES - coresUsed << endl;
+            outFile << "Cores used: " << static_cast<int>(coresUsed) << endl;
+            outFile << "Cores available: " << static_cast<int>(NUM_CORES - coresUsed) << endl;
         
             outFile << "\n----------------------------------------------\n";
             outFile << "Running processes:\n";
@@ -335,8 +336,8 @@ void handleInput() {
 
             cout.precision(2);
             cout << "CPU utilization: " << static_cast<int>(coresUsed * 100 / NUM_CORES) << "%" << endl;
-            cout << "Cores used: " << coresUsed << endl;
-            cout << "Cores available: " << NUM_CORES - coresUsed << endl;
+            cout << "Cores used: " << static_cast<int>(coresUsed) << endl;
+            cout << "Cores available: " << static_cast<int>(NUM_CORES - coresUsed) << endl;
 
             cout << "\n----------------------------------------------\n";
             cout << "Running processes:\n";

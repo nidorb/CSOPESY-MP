@@ -9,7 +9,7 @@
 
 class Scheduler {
 public:
-    static int BATCH_PROCESS_FREQ;
+    static uint64_t BATCH_PROCESS_FREQ;
 
     queue<shared_ptr<Process>> readyQueue;  // Stores processes ready to be assigned to a CPU core
     queue<shared_ptr<Process>> allProcesses;  // Store all processes

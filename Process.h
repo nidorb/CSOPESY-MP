@@ -16,20 +16,20 @@ private:
     int pid;
     string name, timestamp;
 
-    int commandCtr = 0;
+    uint64_t commandCtr = 0;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
-    int totalWork;
+    uint64_t totalWork;
     ProcessState currentState = READY;
 
-    int quantumCtr;
-    int delayCtr;
+    uint64_t quantumCtr;
+    uint64_t delayCtr;
 
 public:
     static int next_pid;
-    static int MIN_INS;
-    static int MAX_INS;
+    static uint64_t MIN_INS;
+    static uint64_t MAX_INS;
 
-    static int DELAYS_PER_EXEC;
+    static uint64_t DELAYS_PER_EXEC;
 
     // Constructor
     Process(const string& name) :
@@ -79,7 +79,7 @@ public:
         return date_time;
     }
 
-    void createProcFile(int quantum_cycles) {
+    void createProcFile(uint64_t quantum_cycles) {
         currentState = RUNNING;
 
         ofstream logs;
@@ -139,7 +139,7 @@ public:
         return timestamp;
     }
 
-    int getCommandCtr() const {
+    uint64_t getCommandCtr() const {
         return commandCtr;
     }
 
@@ -147,7 +147,7 @@ public:
         return cpuCoreID;
     }
 
-    int getTotalWork() const {
+    uint64_t getTotalWork() const {
         return totalWork;
     }
 
