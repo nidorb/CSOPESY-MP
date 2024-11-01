@@ -148,7 +148,7 @@ void initialize(const string& configFilePath) {
         if (configMap.find("num-cpu") != configMap.end()) {
             NUM_CORES = stoi(configMap["num-cpu"]);
             if (NUM_CORES < MIN_RANGE || NUM_CORES > MAX_NUM_CPU) {
-                throw out_of_range("num-cpu out of range. Must be between 1 and 128.");
+                throw out_of_range("num-cpu out of range.");
             }
         }
         else throw invalid_argument("num-cpu not found in config file.");
@@ -156,7 +156,7 @@ void initialize(const string& configFilePath) {
         if (configMap.find("scheduler") != configMap.end()) {
             SCHEDULER_ALGO = configMap["scheduler"];
             if (SCHEDULER_ALGO != "fcfs" && SCHEDULER_ALGO != "rr") {
-                throw invalid_argument("Invalid scheduler. Must be 'fcfs' or 'rr'.");
+                throw invalid_argument("Invalid scheduler. Must be \"fcfs\" or \"rr\".");
             }
         }
         else throw invalid_argument("scheduler not found in config file.");
