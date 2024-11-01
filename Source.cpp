@@ -33,7 +33,8 @@ uint64_t MIN_INS;
 uint64_t MAX_INS;
 uint64_t DELAYS_PER_EXEC;
 
-const uint64_t MAX_NUM_CPU = 128;
+const int MIN_NUM_CPU = 1;
+const int MAX_NUM_CPU = 128;
 const uint64_t MIN_RANGE = 1;
 const uint64_t MIN_DELAY_PER_EXEC = 0;
 const uint64_t MAX_RANGE = static_cast<uint64_t>(UINT32_MAX) + 1;
@@ -132,6 +133,7 @@ void initialize(const string& configFilePath) {
 
     unordered_map<string, string> configMap;
     string line;
+    
     while (getline(configFile, line)) {
         istringstream iss(line);
         string key;
@@ -144,71 +146,104 @@ void initialize(const string& configFilePath) {
         }
     }
 
-    try {
-        if (configMap.find("num-cpu") != configMap.end()) {
-            NUM_CORES = stoi(configMap["num-cpu"]);
-            if (NUM_CORES < MIN_RANGE || NUM_CORES > MAX_NUM_CPU) {
-                throw out_of_range("num-cpu out of range.");
-            }
-        }
-        else throw invalid_argument("num-cpu not found in config file.");
+    bool invalidArg = false;
+    ostringstream errorMessages;
 
-        if (configMap.find("scheduler") != configMap.end()) {
-            SCHEDULER_ALGO = configMap["scheduler"];
-            if (SCHEDULER_ALGO != "fcfs" && SCHEDULER_ALGO != "rr") {
-                throw invalid_argument("Invalid scheduler. Must be \"fcfs\" or \"rr\".");
-            }
+    if (configMap.find("num-cpu") != configMap.end()) {
+        NUM_CORES = stoi(configMap["num-cpu"]);
+        if (NUM_CORES < MIN_NUM_CPU || NUM_CORES > MAX_NUM_CPU) {
+            invalidArg = true;
+            errorMessages << "num-cpu out of range. Must be between " << MIN_NUM_CPU << " and " << MAX_NUM_CPU << "." << endl;
         }
-        else throw invalid_argument("scheduler not found in config file.");
-
-        if (configMap.find("quantum-cycles") != configMap.end()) {
-            QUANTUM_CYCLES = stoull(configMap["quantum-cycles"]);
-            if (QUANTUM_CYCLES < MIN_RANGE || QUANTUM_CYCLES > MAX_RANGE) {
-                throw out_of_range("quantum-cycles out of range.");
-            }
-        }
-        else throw invalid_argument("quantum-cycles not found in config file.");
-
-        if (configMap.find("batch-process-freq") != configMap.end()) {
-            BATCH_PROCESS_FREQ = stoull(configMap["batch-process-freq"]);
-            if (BATCH_PROCESS_FREQ < MIN_RANGE || BATCH_PROCESS_FREQ > MAX_RANGE) {
-                throw out_of_range("batch-process-freq out of range.");
-            }
-        }
-        else throw invalid_argument("batch-process-freq not found in config file.");
-
-        if (configMap.find("min-ins") != configMap.end()) {
-            MIN_INS = stoull(configMap["min-ins"]);
-            if (MIN_INS < MIN_RANGE || MIN_INS > MAX_RANGE) {
-                throw out_of_range("min-ins out of range.");
-            }
-        }
-        else throw invalid_argument("min-ins not found in config file.");
-
-        if (configMap.find("max-ins") != configMap.end()) {
-            MAX_INS = stoull(configMap["max-ins"]);
-            if (MAX_INS < MIN_RANGE || MAX_INS > MAX_RANGE) {
-                throw out_of_range("max-ins out of range.");
-            }
-        }
-        else throw invalid_argument("max-ins not found in config file.");
-
-        if (configMap.find("delays-per-exec") != configMap.end()) {
-            DELAYS_PER_EXEC = stoull(configMap["delays-per-exec"]);
-            if (DELAYS_PER_EXEC < MIN_DELAY_PER_EXEC || DELAYS_PER_EXEC > MAX_RANGE) {
-                throw out_of_range("delays-per-exec out of range.");
-            }
-        }
-        else throw invalid_argument("delays-per-exec not found in config file.");
-
     }
-    catch (const exception& e) {
-        cerr << "Configuration error: " << e.what() << endl;
-        configFile.close();
+    else {
+        invalidArg = true;
+        errorMessages << "num-cpu not found in config file." << endl;
+    }
+
+    if (configMap.find("scheduler") != configMap.end()) {
+        SCHEDULER_ALGO = configMap["scheduler"];
+        if (SCHEDULER_ALGO != "fcfs" && SCHEDULER_ALGO != "rr") {
+            invalidArg = true;
+            errorMessages << "Invalid scheduler. Must be \"fcfs\" or \"rr\"." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "scheduler not found in config file." << endl;
+    }
+
+    if (configMap.find("quantum-cycles") != configMap.end()) {
+        QUANTUM_CYCLES = stoull(configMap["quantum-cycles"]);
+        if (QUANTUM_CYCLES < MIN_RANGE || QUANTUM_CYCLES > MAX_RANGE) {
+            invalidArg = true;
+            errorMessages << "quantum-cycles out of range. Must be between " << MIN_RANGE << " and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "quantum-cycles not found in config file." << endl;
+    }
+
+    if (configMap.find("batch-process-freq") != configMap.end()) {
+        BATCH_PROCESS_FREQ = stoull(configMap["batch-process-freq"]);
+        if (BATCH_PROCESS_FREQ < MIN_RANGE || BATCH_PROCESS_FREQ > MAX_RANGE) {
+            invalidArg = true;
+            errorMessages << "batch-process-freq out of range. Must be between " << MIN_RANGE << " and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "batch-process-freq not found in config file." << endl;
+    }
+
+    if (configMap.find("min-ins") != configMap.end()) {
+        MIN_INS = stoull(configMap["min-ins"]);
+        if (MIN_INS < MIN_RANGE || MIN_INS > MAX_RANGE) {
+            invalidArg = true;
+            errorMessages << "min-ins out of range. Must be between " << MIN_RANGE << " and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "min-ins not found in config file." << endl;
+    }
+
+    if (configMap.find("max-ins") != configMap.end()) {
+        MAX_INS = stoull(configMap["max-ins"]);
+        if (MAX_INS < MIN_RANGE || MAX_INS > MAX_RANGE) {
+            invalidArg = true;
+            errorMessages << "max-ins out of range. Must be between " << MIN_RANGE << " and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "max-ins not found in config file." << endl;
+    }
+
+	if (MAX_INS < MIN_INS) {
+		invalidArg = true;
+		errorMessages << "max-ins must be greater than or equal to min-ins." << endl;
+	}
+
+    if (configMap.find("delays-per-exec") != configMap.end()) {
+        DELAYS_PER_EXEC = stoull(configMap["delays-per-exec"]);
+        if (DELAYS_PER_EXEC < MIN_DELAY_PER_EXEC || DELAYS_PER_EXEC > MAX_RANGE) {
+            invalidArg = true;
+            errorMessages << "delays-per-exec out of range. Must be between " << MIN_DELAY_PER_EXEC << "and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "delays-per-exec not found in config file." << endl;
+    }
+
+    configFile.close();
+
+    if (invalidArg) {
+        cerr << "\nConfiguration errors found:\n" << errorMessages.str();
         return;
     }
-    
-    configFile.close();
 
     cout << "Configurations initialized:" << endl;
     cout << "NUM_CORES: " << NUM_CORES << endl;
