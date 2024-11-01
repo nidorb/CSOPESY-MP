@@ -12,8 +12,6 @@ public:
 	const int numCores;
 	vector<unique_ptr<Core>> cores;
 
-	mutex mtx;
-
 	FCFSScheduler(int NUM_CORES) : numCores(NUM_CORES) {
 		for (int i = 0; i < numCores; i++) {
 			auto core = make_unique<Core>(i);
@@ -42,7 +40,7 @@ public:
 				if (!readyQueue.empty()) {
 					if (cores[i]->isCoreFree()) {
 						shared_ptr<Process> curProcess = readyQueue.front();
-						readyQueue.erase(readyQueue.begin());
+						readyQueue.pop();
 
 						// Assign process to CPU core
 						cores[i]->assignProcess(curProcess);
@@ -50,7 +48,7 @@ public:
 				}	
 			}
 
-			this_thread::sleep_for(chrono::milliseconds(100));
+			this_thread::sleep_for(chrono::milliseconds(10));
 		}
 	}
 

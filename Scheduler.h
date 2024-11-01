@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <queue>
 #include <memory>
 #include <mutex>
 
@@ -11,8 +11,8 @@ class Scheduler {
 public:
     static int BATCH_PROCESS_FREQ;
 
-    vector<shared_ptr<Process>> readyQueue;  // Stores processes ready to be assigned to a CPU core
-    vector<shared_ptr<Process>> allProcesses;  // Store all processes
+    queue<shared_ptr<Process>> readyQueue;  // Stores processes ready to be assigned to a CPU core
+    queue<shared_ptr<Process>> allProcesses;  // Store all processes
 
     bool isRunning = true;
 
@@ -20,14 +20,14 @@ public:
     bool osRunning = false;
 
     virtual void handleScheduler() = 0;
-    virtual void handleProcessPreempt(const std::shared_ptr<Process>& process) = 0;
+    virtual void handleProcessPreempt(const shared_ptr<Process>& process) = 0;
     virtual ~Scheduler() {}
 
     void generateProcesses() {
         if (cpuTicks % Scheduler::BATCH_PROCESS_FREQ == 0) {
             auto process = make_shared<Process>("");
-            readyQueue.push_back(process);
-            allProcesses.push_back(process);
+            readyQueue.push(process);
+            allProcesses.push(process);
         }
     }
 };

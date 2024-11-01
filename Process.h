@@ -31,8 +31,6 @@ public:
 
     static int DELAYS_PER_EXEC;
 
-    mutex mtx;
-
     // Constructor
     Process(const string& name) :
         name(name), timestamp(getCurDate()) {
@@ -113,7 +111,7 @@ public:
                 quantumCtr++;
             }
 
-            this_thread::sleep_for(chrono::milliseconds(100));
+            this_thread::sleep_for(chrono::milliseconds(10));
         }
 
         logs.close();

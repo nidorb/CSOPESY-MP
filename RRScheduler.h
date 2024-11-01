@@ -44,7 +44,7 @@ public:
 				if (!readyQueue.empty()) {
 					if (cores[i]->isCoreFree()) {
 						shared_ptr<Process> curProcess = readyQueue.front();
-						readyQueue.erase(readyQueue.begin());
+						readyQueue.pop();
 						
 						// Assign process to CPU core
 						cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
@@ -52,7 +52,7 @@ public:
 				}
 			}
 
-			this_thread::sleep_for(chrono::milliseconds(100));
+			this_thread::sleep_for(chrono::milliseconds(10));
 		}
 	}
 
@@ -60,7 +60,7 @@ public:
 		lock_guard<mutex> lock(mtx);
 
 		if (process->getState() == Process::READY) {
-			readyQueue.push_back(process);
+			readyQueue.push(process);
 		}
 	}
 };
