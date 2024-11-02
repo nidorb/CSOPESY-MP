@@ -15,6 +15,7 @@ public:
 	mutex mtx;
 
 	static uint64_t QUANTUM_CYCLES;
+	bool rrRun = false;
 
 	RRScheduler(int NUM_CORES) : numCores(NUM_CORES) {
 		for (int i = 0; i < numCores; i++) {
@@ -39,17 +40,35 @@ public:
 				cpuTicks++;
 			}
 
-			// Check if a core is available to assign a process
-			for (int i = 0; i < numCores; i++) {
-				if (!readyQueue.empty()) {
-					if (cores[i]->isCoreFree()) {
-						shared_ptr<Process> curProcess = readyQueue.front();
-						readyQueue.pop();
-						
-						// Assign process to CPU core
-						cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
+			if (cpuTicks % QUANTUM_CYCLES == 0 && readyQueue.size() <= numCores && rrRun == false) {
+				for (int i = 0; i < numCores; i++) {
+					if (!readyQueue.empty()) {
+						if (cores[i]->isCoreFree()) {
+							shared_ptr<Process> curProcess = readyQueue.front();
+							readyQueue.pop();
+
+							// Assign process to CPU core
+							cores[i]->assignProcess(curProcess, "fcfs");
+						}
 					}
 				}
+				rrRun = true;
+			}
+
+			else {
+				// Check if a core is available to assign a process
+				for (int i = 0; i < numCores; i++) {
+					if (!readyQueue.empty()) {
+						if (cores[i]->isCoreFree()) {
+							shared_ptr<Process> curProcess = readyQueue.front();
+							readyQueue.pop();
+
+							// Assign process to CPU core
+							cores[i]->assignProcess(curProcess, "rr", QUANTUM_CYCLES);
+						}
+					}
+				}
+				rrRun = false;
 			}
 
 			this_thread::sleep_for(chrono::milliseconds(100));

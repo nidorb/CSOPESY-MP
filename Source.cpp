@@ -400,10 +400,11 @@ void handleInput() {
         }
 
         // "screen -ls"
-        else if (input.substr(0, 10) == "screen -ls") { 
+        else if (input.substr(0, 10) == "screen -ls") {
             double coresUsed = 0;
 
             queue<shared_ptr<Process>> tempQueue1 = scheduler->allProcesses;
+
             while (!tempQueue1.empty()) {
                 auto processPtr = tempQueue1.front();
                 tempQueue1.pop();
@@ -413,41 +414,46 @@ void handleInput() {
                 }
             }
 
-            cout.precision(2);
-            cout << "CPU utilization: " << static_cast<int>(coresUsed * 100 / NUM_CORES) << "%" << endl;
-            cout << "Cores used: " << static_cast<int>(coresUsed) << endl;
-            cout << "Cores available: " << static_cast<int>(NUM_CORES - coresUsed) << endl;
+            // Prepare output for CPU utilization
+            ostringstream output;
+            output.precision(2);
+            output << fixed; // Ensure decimal points for percentage
+            output << "CPU utilization: " << static_cast<int>(coresUsed * 100 / NUM_CORES) << "%" << endl;
+            output << "Cores used: " << static_cast<int>(coresUsed) << endl;
+            output << "Cores available: " << static_cast<int>(NUM_CORES - coresUsed) << endl;
+            output << "\n----------------------------------------------\n";
+            output << "Running processes:\n";
 
-            cout << "\n----------------------------------------------\n";
-            cout << "Running processes:\n";
-
+            // Gather running processes
             queue<shared_ptr<Process>> tempQueue2 = scheduler->allProcesses;
             while (!tempQueue2.empty()) {
                 auto processPtr = tempQueue2.front();
                 tempQueue2.pop();
 
                 if (processPtr->getState() == Process::RUNNING) {
-                    cout << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Core:  "
+                    output << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Core:  "
                         << processPtr->getCPUCoreID() << "    " << processPtr->getProgressString() << "\n";
                 }
             }
 
             // Print finished processes
-            cout << "\nFinished processes:\n";
-
+            output << "\nFinished processes:\n";
             queue<shared_ptr<Process>> tempQueue3 = scheduler->allProcesses;
             while (!tempQueue3.empty()) {
                 auto processPtr = tempQueue3.front();
                 tempQueue3.pop();
 
                 if (processPtr->getState() == Process::FINISHED) {
-                    cout << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Finished    "
+                    output << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Finished    "
                         << processPtr->getProgressString() << "\n";
                 }
             }
 
-            cout << "----------------------------------------------\n";
-        }
+            output << "----------------------------------------------\n";
+
+            cout << output.str();
+            }
+
 
         else {
             cout << "Unknown command \n";
