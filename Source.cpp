@@ -274,6 +274,12 @@ void initialize(const string& configFilePath) {
 
 }
 
+// remove once proj is finished
+void createnewProcess(const string& processName) {
+    shared_ptr<Process> console = make_shared<Process>(processName);
+    scheduler->readyQueue.push(console);
+    scheduler->allProcesses.push(console);
+}
 
 void handleInput() {
     string input;
@@ -454,14 +460,18 @@ void handleInput() {
             cout << output.str();
             }
 
+        // remove once proj is finished
+        else if (input == "proc") {
+			for (int i = 0; i < 4; i++) {
+				createnewProcess("Process" + i);
+			}
+        }
 
         else {
             cout << "Unknown command \n";
         }
     }
 }
-
-
 
 int main() {
 

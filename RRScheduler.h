@@ -33,6 +33,17 @@ public:
 		schedulerThread.detach();
 	}
 
+	int freeCore() {
+		int freeCoreCtr = 0;
+		for (int j = 0; j < numCores; j++) {
+			if (cores[j]->isCoreFree()) {
+				freeCoreCtr++;
+			}
+		}
+		return freeCoreCtr;
+	}
+
+
 	void handleScheduler() {
 		while (isRunning) {
 			if (osRunning) {
@@ -40,18 +51,18 @@ public:
 				cpuTicks++;
 			}
 
-			if (readyQueue.empty()) {
+			if ((freeCore() + readyQueue.size()) == 0) {
 				rrRun = false;
 			}
 
-			else if (readyQueue.size() <= numCores && !rrRun) {
+			else if (cpuTicks % QUANTUM_CYCLES == 0 && (freeCore() + readyQueue.size()) <= numCores && !rrRun) {
 				for (int i = 0; i < numCores; i++) {
 					if (!readyQueue.empty()) {
 						if (cores[i]->isCoreFree()) {
 							shared_ptr<Process> curProcess = readyQueue.front();
 							readyQueue.pop();
 
-							cores[i]->assignProcess(curProcess, "rr", QUANTUM_CYCLES);
+							cores[i]->assignProcess(curProcess, "rr");
 						}
 					}
 				}
