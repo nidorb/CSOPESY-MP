@@ -462,8 +462,8 @@ void handleInput() {
 
         // remove once proj is finished
         else if (input == "proc") {
-			for (int i = 0; i < 4; i++) {
-				createnewProcess("Process" + i);
+			for (int i = 0; i < 5; i++) {
+				createnewProcess("Process" + to_string(i));
 			}
         }
 

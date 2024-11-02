@@ -33,14 +33,14 @@ public:
 		schedulerThread.detach();
 	}
 
-	int freeCore() {
+	int runningProcesses() {
 		int freeCoreCtr = 0;
 		for (int j = 0; j < numCores; j++) {
 			if (cores[j]->isCoreFree()) {
 				freeCoreCtr++;
 			}
 		}
-		return freeCoreCtr;
+		return numCores - freeCoreCtr;
 	}
 
 
@@ -51,11 +51,20 @@ public:
 				cpuTicks++;
 			}
 
-			if ((freeCore() + readyQueue.size()) == 0) {
+			// RR scheduler has 2 possibilities: RR or FCFS (if processes are less than cores)
+			//rrRun represents tracker if FCFS should run
+
+			// runningProcesses() -> displays # of running processes
+			// readyQueue.size() -> displays # of ready processes
+			
+
+			// if no RUNNING/READY processes, set rrRun to false
+			if ((runningProcesses() + readyQueue.size()) == 0) {
 				rrRun = false;
 			}
 
-			else if (cpuTicks % QUANTUM_CYCLES == 0 && (freeCore() + readyQueue.size()) <= numCores && !rrRun) {
+			//it should recheck if fcfs every end of quantum cycle              // checks if processes are less than cores                    // checs if it should be fcfs or not
+			else if (cpuTicks % QUANTUM_CYCLES == 0                 &&         (runningProcesses() + readyQueue.size()) <= numCores        &&      !rrRun) {
 				for (int i = 0; i < numCores; i++) {
 					if (!readyQueue.empty()) {
 						if (cores[i]->isCoreFree()) {
@@ -66,25 +75,25 @@ public:
 						}
 					}
 				}
+				// prevents running loop twice (causing reassignment of cores)
 				rrRun = true;	
 			}
 
+
+			// RR implementation
 			else {
-				// Check if a core is available to assign a process
 				for (int i = 0; i < numCores; i++) {
 					if (!readyQueue.empty()) {
 						if (cores[i]->isCoreFree()) {
 							shared_ptr<Process> curProcess = readyQueue.front();
 							readyQueue.pop();
 
-							// Assign process to CPU core
 							cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 						}
 					}
 				}
 				rrRun = false;
 			}
-
 			this_thread::sleep_for(chrono::milliseconds(50));
 		}
 	}
