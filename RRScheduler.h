@@ -40,19 +40,22 @@ public:
 				cpuTicks++;
 			}
 
-			if (cpuTicks % QUANTUM_CYCLES == 0 && readyQueue.size() <= numCores && rrRun == false) {
+			if (readyQueue.empty()) {
+				rrRun = false;
+			}
+
+			else if (readyQueue.size() <= numCores && !rrRun) {
 				for (int i = 0; i < numCores; i++) {
 					if (!readyQueue.empty()) {
 						if (cores[i]->isCoreFree()) {
 							shared_ptr<Process> curProcess = readyQueue.front();
 							readyQueue.pop();
 
-							// Assign process to CPU core
 							cores[i]->assignProcess(curProcess, "rr", QUANTUM_CYCLES);
 						}
 					}
 				}
-				rrRun = true;
+				rrRun = true;	
 			}
 
 			else {
@@ -71,7 +74,7 @@ public:
 				rrRun = false;
 			}
 
-			this_thread::sleep_for(chrono::milliseconds(1));
+			this_thread::sleep_for(chrono::milliseconds(50));
 		}
 	}
 
