@@ -63,8 +63,8 @@ public:
 				rrRun = false;
 			}
 
-			//it should recheck if fcfs every end of quantum cycle              // checks if processes are less than cores                    // checs if it should be fcfs or not
-			else if (cpuTicks % QUANTUM_CYCLES == 0                 &&         (runningProcesses() + readyQueue.size()) <= numCores        &&      !rrRun) {
+			//it should recheck if scheduler is fcfs ONLY at end of every quantum cycle     // checks if total RUNNING/READY processes are less than cores    // checs if it should be fcfs or not
+			else if (cpuTicks % QUANTUM_CYCLES == 0                 &&                      (runningProcesses() + readyQueue.size()) <= numCores        &&      !rrRun) {
 				for (int i = 0; i < numCores; i++) {
 					if (!readyQueue.empty()) {
 						if (cores[i]->isCoreFree()) {
