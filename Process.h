@@ -111,7 +111,7 @@ public:
                 quantumCtr++;
             }
 
-            this_thread::sleep_for(chrono::milliseconds(10));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         logs.close();

@@ -230,7 +230,7 @@ void initialize(const string& configFilePath) {
         DELAYS_PER_EXEC = stoull(configMap["delays-per-exec"]);
         if (DELAYS_PER_EXEC < MIN_DELAY_PER_EXEC || DELAYS_PER_EXEC > MAX_RANGE) {
             invalidArg = true;
-            errorMessages << "delays-per-exec out of range. Must be between " << MIN_DELAY_PER_EXEC << "and " << MAX_RANGE << "." << endl;
+            errorMessages << "delays-per-exec out of range. Must be between " << MIN_DELAY_PER_EXEC << " and " << MAX_RANGE << "." << endl;
         }
     }
     else {
