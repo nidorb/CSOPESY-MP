@@ -41,7 +41,7 @@ const uint64_t MAX_RANGE = static_cast<uint64_t>(UINT32_MAX) + 1;
 
 bool osRunning = false;
 
-int isInitialized = 0;
+bool isInitialized = false;
 
 void header()
 {
@@ -230,7 +230,7 @@ void initialize(const string& configFilePath) {
         DELAYS_PER_EXEC = stoull(configMap["delays-per-exec"]);
         if (DELAYS_PER_EXEC < MIN_DELAY_PER_EXEC || DELAYS_PER_EXEC > MAX_RANGE) {
             invalidArg = true;
-            errorMessages << "delays-per-exec out of range. Must be between " << MIN_DELAY_PER_EXEC << " and " << MAX_RANGE << "." << endl;
+            errorMessages << "delays-per-exec out of range. Must be between " << MIN_DELAY_PER_EXEC << "and " << MAX_RANGE << "." << endl;
         }
     }
     else {
@@ -261,20 +261,17 @@ void initialize(const string& configFilePath) {
     RRScheduler::QUANTUM_CYCLES = QUANTUM_CYCLES;
     Scheduler::BATCH_PROCESS_FREQ = BATCH_PROCESS_FREQ;
 
-    isInitialized++;
+    isInitialized = true;
 
-    if (isInitialized == 1) {
-        if (SCHEDULER_ALGO == "fcfs") {
-            scheduler = make_unique<FCFSScheduler>(NUM_CORES);
-        }
-        else if (SCHEDULER_ALGO == "rr") {
-            scheduler = make_unique<RRScheduler>(NUM_CORES);
-        }
-        else {
-            cout << "Error: Unknown scheduling algorithm." << endl;
-            isInitialized = 0;
-        }
+    if (SCHEDULER_ALGO == "fcfs") {
+        if (scheduler) scheduler.reset();
+        scheduler = make_unique<FCFSScheduler>(NUM_CORES);
     }
+    else if (SCHEDULER_ALGO == "rr") {
+        if (scheduler) scheduler.reset();
+        scheduler = make_unique<RRScheduler>(NUM_CORES);
+    }
+
 }
 
 
