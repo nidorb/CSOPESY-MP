@@ -43,7 +43,7 @@ public:
 						readyQueue.pop();
 
 						// Assign process to CPU core
-						cores[i]->assignProcess(curProcess, "fcfs");
+						cores[i]->assignProcess(curProcess);
 					}
 				}	
 			}

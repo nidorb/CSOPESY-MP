@@ -62,7 +62,7 @@ public:
 							shared_ptr<Process> curProcess = readyQueue.front();
 							readyQueue.pop();
 
-							cores[i]->assignProcess(curProcess, "rr");
+							cores[i]->assignProcess(curProcess);
 						}
 					}
 				}
@@ -78,7 +78,7 @@ public:
 							readyQueue.pop();
 
 							// Assign process to CPU core
-							cores[i]->assignProcess(curProcess, "rr", QUANTUM_CYCLES);
+							cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 						}
 					}
 				}

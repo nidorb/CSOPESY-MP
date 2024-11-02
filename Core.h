@@ -59,16 +59,16 @@ public:
         isFree = true;
     }
 
-    void assignProcess(const shared_ptr<Process>& process, string scheduler, uint64_t quantum_cycles = -1) {
+    void assignProcess(const shared_ptr<Process>& process, uint64_t quantum_cycles = -1) {
         unique_lock<mutex> lock(mtx);
         currentProcess = process;
         
-        if (scheduler == "rr") {
+        if (quantum_cycles == -1) {
+            this->quantum_cycles = process->getTotalWork();
+        }
+        else {
             this->quantum_cycles = quantum_cycles;
         }
-		else if (scheduler == "fcfs") {
-			quantum_cycles = process->getTotalWork();
-		}
 
         cv.notify_one();
     }
