@@ -59,15 +59,15 @@ public:
 			
 
 			// if no RUNNING/READY processes, set rrRun to false
-			if ((runningProcesses() + readyQueue.size()) == 0) {
-				rrRun = false;
-			}
+			rrRun = (runningProcesses() + readyQueue.size()) > numCores;
+
 
 			//it should recheck if scheduler is fcfs ONLY at end of every quantum cycle     // checks if total RUNNING/READY processes are less than cores    // checs if it should be fcfs or not
-			else if (cpuTicks % QUANTUM_CYCLES == 0                 &&                      (runningProcesses() + readyQueue.size()) <= numCores        &&      !rrRun) {
+			if (cpuTicks % QUANTUM_CYCLES == 0 &&  !rrRun) {
 				for (int i = 0; i < numCores; i++) {
 					if (!readyQueue.empty()) {
 						if (cores[i]->isCoreFree()) {
+							//cout << "FCFS reassingment" << endl; //debugging
 							shared_ptr<Process> curProcess = readyQueue.front();
 							readyQueue.pop();
 
@@ -75,13 +75,12 @@ public:
 						}
 					}
 				}
-				// prevents running loop twice (causing reassignment of cores)
-				rrRun = true;	
+				rrRun = true;
 			}
 
 
 			// RR implementation
-			else {
+			else if (rrRun) {
 				for (int i = 0; i < numCores; i++) {
 					if (!readyQueue.empty()) {
 						if (cores[i]->isCoreFree()) {
