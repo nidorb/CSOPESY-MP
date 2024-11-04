@@ -8,6 +8,6 @@ Ricardo Luis Q. Vicerra
 
 Instructions on running program:
 For Visual Studio 2022:
-  Press Run/Debug or Start without Debugging
+  Press Build then Run/Debug or Start without Debugging
 
 Entry Class File: Source.cpp
