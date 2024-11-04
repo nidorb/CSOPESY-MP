@@ -7,7 +7,7 @@ Gregory Charles K. Tiong
 Ricardo Luis Q. Vicerra
 
 Instructions on running program:
-use the master branch
+use the MO1 branch
 For Visual Studio 2022:
   Press Build then Run/Debug or Start without Debugging
 
