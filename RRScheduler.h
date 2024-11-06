@@ -30,14 +30,13 @@ public:
 
 		thread schedulerThread = thread(&RRScheduler::handleScheduler, this);
 		schedulerThread.detach();
+
+		thread generatorThread = thread(&RRScheduler::handleProcessGenerator, this);
+		generatorThread.detach();
 	}
 
 	void handleScheduler() {
 		while (isRunning) {
-			if (osRunning) {
-				generateProcesses();
-				cpuTicks++;
-			}
 
 			// Check if a core is available to assign a process
 			for (int i = 0; i < numCores; i++) {

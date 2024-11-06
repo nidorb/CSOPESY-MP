@@ -17,7 +17,7 @@ public:
     bool isRunning = true;
 
     int cpuTicks = 0;
-    bool osRunning = false;
+    bool isGenerating = false;
 
     virtual void handleScheduler() = 0;
     virtual void handleProcessPreempt(const shared_ptr<Process>& process) = 0;
@@ -28,6 +28,17 @@ public:
             auto process = make_shared<Process>("");
             readyQueue.push(process);
             allProcesses.push(process);
+        }
+    }
+
+    void handleProcessGenerator() {
+        while (isRunning) {
+            if (isGenerating) {
+                generateProcesses();
+                cpuTicks++;
+            }
+
+            this_thread::sleep_for(chrono::milliseconds(500));
         }
     }
 };

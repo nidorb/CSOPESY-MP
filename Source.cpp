@@ -39,8 +39,6 @@ const uint64_t MIN_RANGE = 1;
 const uint64_t MIN_DELAY_PER_EXEC = 0;
 const uint64_t MAX_RANGE = static_cast<uint64_t>(UINT32_MAX) + 1;
 
-bool osRunning = false;
-
 bool isInitialized = false;
 
 void header()
@@ -301,11 +299,11 @@ void handleInput() {
         }
         
         else if (input == "scheduler-test") {
-            scheduler->osRunning = true;
+            scheduler->isGenerating = true;
             cout << "Generating dummy processes.\n";
         }
         else if (input == "scheduler-stop") {
-            scheduler->osRunning = false;
+            scheduler->isGenerating = false;
             cout << "Stopped generating dummy processes.\n";
         }
         else if (input == "report-util") {

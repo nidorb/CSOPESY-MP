@@ -26,14 +26,13 @@ public:
 
 		thread schedulerThread = thread(&FCFSScheduler::handleScheduler, this);
 		schedulerThread.detach();
+
+		thread generatorThread = thread(&FCFSScheduler::handleProcessGenerator, this);
+		generatorThread.detach();
 	}
 
 	void handleScheduler() {
 		while (isRunning) {
-			if (osRunning) {
-				generateProcesses();
-				cpuTicks++;
-			}
 
 			// Check if a core is available to assign a process
 			for (int i = 0; i < numCores; i++) {
