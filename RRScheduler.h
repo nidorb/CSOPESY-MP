@@ -41,7 +41,7 @@ public:
 			// Check if a core is available to assign a process
 			for (int i = 0; i < numCores; i++) {
 				if (!readyQueue.empty()) {
-					if (cores[i]->isCoreFree()) {
+					if (cores[i]->isCoreFree() || cores[i]->nextProcess == nullptr) {
 						shared_ptr<Process> curProcess = readyQueue.front();
 						readyQueue.pop();
 						

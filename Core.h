@@ -20,6 +20,7 @@ public:
     condition_variable cv;
     mutex mtx;
     shared_ptr<Process> currentProcess;
+    shared_ptr<Process> nextProcess;
     function<void(shared_ptr<Process>)> onProcessPreempt;
 
     bool isRunning = true;
@@ -40,7 +41,8 @@ public:
                         onProcessPreempt(currentProcess);
                     }
 
-                    currentProcess = nullptr;
+                    currentProcess = nextProcess;
+                    nextProcess = nullptr;
 
                     lock.unlock();
                     cv.notify_all();
@@ -52,29 +54,27 @@ public:
     void executeProcess(const shared_ptr<Process>& process, uint64_t quantum_cycles) {
         if (process == nullptr) return;
 
-        isFree = false;
         process->setCPUCoreID(id);
-
         process->createProcFile(quantum_cycles);
-        isFree = true;
     }
 
     void assignProcess(const shared_ptr<Process>& process, uint64_t quantum_cycles = -1) {
         unique_lock<mutex> lock(mtx);
-        currentProcess = process;
-        
-        if (quantum_cycles == -1) {
-            this->quantum_cycles = process->getTotalWork();
+
+        if (currentProcess == nullptr) {
+            currentProcess = process;
         }
         else {
-            this->quantum_cycles = quantum_cycles;
+            nextProcess = process;
         }
+        
+        this->quantum_cycles = quantum_cycles;
 
         cv.notify_one();
     }
 
     bool isCoreFree() {
-        return isFree;
+        return currentProcess == nullptr;
     }
 
     ~Core() {
