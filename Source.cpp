@@ -109,12 +109,7 @@ void drawConsole(const shared_ptr<Process>& console) {
 }
 
 shared_ptr<Process> searchProcessByName(const string& name, const vector<Process::ProcessState>& states) {
-    queue<shared_ptr<Process>> tempQueue = scheduler->allProcesses;
-
-    while (!tempQueue.empty()) {
-        auto console = tempQueue.front();
-        tempQueue.pop();
-
+    for (const shared_ptr<Process>& console : scheduler->allProcesses) {
         if (console->getName() == name && find(states.begin(), states.end(), console->getState()) != states.end()) {
             return console;
         }
@@ -316,11 +311,7 @@ void handleInput() {
             }
             double coresUsed = 0;
 
-            queue<shared_ptr<Process>> tempQueue1 = scheduler->allProcesses;
-            while (!tempQueue1.empty()) {
-                auto processPtr = tempQueue1.front();
-                tempQueue1.pop();
-
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::RUNNING) {
                     coresUsed++;
                 }
@@ -333,29 +324,19 @@ void handleInput() {
         
             outFile << "\n----------------------------------------------\n";
             outFile << "Running processes:\n";
-
-            queue<shared_ptr<Process>> tempQueue2 = scheduler->allProcesses;
-            while (!tempQueue2.empty()) {
-                auto processPtr = tempQueue2.front();
-                tempQueue2.pop();
-
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::RUNNING) {
                     outFile << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Core:  "
-                        << processPtr->getCPUCoreID() << "    " << processPtr->getProgressString() << "\n";
+                            << processPtr->getCPUCoreID() << "    " << processPtr->getProgressString() << "\n";
                 }
             }
 
 
             outFile << "\nFinished processes:\n";
-
-            queue<shared_ptr<Process>> tempQueue3 = scheduler->allProcesses;
-            while (!tempQueue3.empty()) {
-                auto processPtr = tempQueue3.front();
-                tempQueue3.pop();
-
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::FINISHED) {
                     outFile << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Finished    "
-                        << processPtr->getProgressString() << "\n";
+                            << processPtr->getProgressString() << "\n";
                 }
             }
 
@@ -374,8 +355,8 @@ void handleInput() {
             shared_ptr<Process> res_console = searchProcessByName(processName, { Process::READY, Process::RUNNING, Process::FINISHED });
             if (res_console == nullptr) {
                 shared_ptr<Process> console = make_shared<Process>(processName);
-                scheduler->readyQueue.push(console);  // Store the process console
-                scheduler->allProcesses.push(console);
+                scheduler->readyQueue.push_back(console);  // Store the process console
+                scheduler->allProcesses.push_back(console);
                 drawConsole(console);
             }
             else {
@@ -400,12 +381,7 @@ void handleInput() {
         // "screen -ls"
         else if (input.substr(0, 10) == "screen -ls") { 
             double coresUsed = 0;
-
-            queue<shared_ptr<Process>> tempQueue1 = scheduler->allProcesses;
-            while (!tempQueue1.empty()) {
-                auto processPtr = tempQueue1.front();
-                tempQueue1.pop();
-
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::RUNNING) {
                     coresUsed++;
                 }
@@ -418,12 +394,7 @@ void handleInput() {
 
             cout << "\n----------------------------------------------\n";
             cout << "Running processes:\n";
-
-            queue<shared_ptr<Process>> tempQueue2 = scheduler->allProcesses;
-            while (!tempQueue2.empty()) {
-                auto processPtr = tempQueue2.front();
-                tempQueue2.pop();
-
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::RUNNING) {
                     cout << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Core:  "
                         << processPtr->getCPUCoreID() << "    " << processPtr->getProgressString() << "\n";
@@ -432,12 +403,7 @@ void handleInput() {
 
             // Print finished processes
             cout << "\nFinished processes:\n";
-
-            queue<shared_ptr<Process>> tempQueue3 = scheduler->allProcesses;
-            while (!tempQueue3.empty()) {
-                auto processPtr = tempQueue3.front();
-                tempQueue3.pop();
-
+            for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
                 if (processPtr->getState() == Process::FINISHED) {
                     cout << processPtr->getName() << "   (" << processPtr->getTimestamp() << ")    Finished    "
                         << processPtr->getProgressString() << "\n";

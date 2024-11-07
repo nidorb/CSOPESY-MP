@@ -39,7 +39,7 @@ public:
 				if (!readyQueue.empty()) {
 					if (cores[i]->isCoreFree()) {
 						shared_ptr<Process> curProcess = readyQueue.front();
-						readyQueue.pop();
+						readyQueue.erase(readyQueue.begin());
 
 						// Assign process to CPU core
 						cores[i]->assignProcess(curProcess);

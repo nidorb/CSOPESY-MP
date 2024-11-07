@@ -1,6 +1,5 @@
 #pragma once
 
-#include <queue>
 #include <memory>
 #include <mutex>
 
@@ -11,8 +10,8 @@ class Scheduler {
 public:
     static uint64_t BATCH_PROCESS_FREQ;
 
-    queue<shared_ptr<Process>> readyQueue;  // Stores processes ready to be assigned to a CPU core
-    queue<shared_ptr<Process>> allProcesses;  // Store all processes
+    vector<shared_ptr<Process>> readyQueue;  // Stores processes ready to be assigned to a CPU core
+    vector<shared_ptr<Process>> allProcesses;  // Store all processes
 
     bool isRunning = true;
 
@@ -26,8 +25,8 @@ public:
     void generateProcesses() {
         if (cpuTicks % Scheduler::BATCH_PROCESS_FREQ == 0) {
             auto process = make_shared<Process>("");
-            readyQueue.push(process);
-            allProcesses.push(process);
+            readyQueue.push_back(process);
+            allProcesses.push_back(process);
         }
     }
 
