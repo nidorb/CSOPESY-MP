@@ -31,6 +31,8 @@ public:
 
     static uint64_t DELAYS_PER_EXEC;
 
+    static size_t memoryRequired;
+
     // Constructor
     Process(const string& name) :
         name(name), timestamp(getCurDate()) {

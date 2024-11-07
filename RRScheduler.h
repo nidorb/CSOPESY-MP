@@ -6,6 +6,7 @@
 #include "Process.h"
 #include "Core.h"
 #include "Scheduler.h"
+#include "Globals.h"
 
 class RRScheduler : public Scheduler {
 public:
@@ -45,8 +46,14 @@ public:
 						shared_ptr<Process> curProcess = readyQueue.front();
 						readyQueue.erase(readyQueue.begin());
 						
-						// Assign process to CPU core
-						cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
+						void* memory = memoryAllocator->allocate(curProcess);
+						if (memory != nullptr) {
+							// Assign process to CPU core
+							cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
+						}
+						else {
+							readyQueue.push_back(curProcess);
+						}
 					}
 				}
 			}

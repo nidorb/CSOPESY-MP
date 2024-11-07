@@ -11,6 +11,8 @@
 #include "Process.h"
 #include <functional>
 
+#include "Globals.h"
+
 using namespace std;
 
 class Core {
@@ -40,6 +42,8 @@ public:
                     if (onProcessPreempt) {
                         onProcessPreempt(currentProcess);
                     }
+
+                    memoryAllocator->deallocate(currentProcess);
 
                     currentProcess = nextProcess;
                     nextProcess = nullptr;
