@@ -11,7 +11,7 @@ public:
 	void* allocate(shared_ptr<Process> process) {
 		size_t size = process->memoryRequired;
 
-		for (size_t i = 0; i < maximumSize - size; i++) {
+		for (size_t i = 0; i <= maximumSize - size; i++) {
 			if (!memory[i] && canAllocateAt(i, size)) {
 				allocateAt(i, process);
 				return &memory[i];
@@ -55,7 +55,7 @@ private:
 
 	// Check if the memory block is large enough
 	bool canAllocateAt(size_t index, size_t size) const {
-		return (index + size < maximumSize);
+		return (index + size <= maximumSize);
 	}
 
 	// Mark the memory block as allocated
