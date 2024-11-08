@@ -242,7 +242,7 @@ void initialize(const string& configFilePath) {
     }
 
     if (configMap.find("delays-per-exec") != configMap.end()) {
-        MAX_OVERALL_MEM = stoull(configMap["max-overall-mem"]);
+        MAX_OVERALL_MEM = static_cast<size_t>(stoull(configMap["max-overall-mem"]));
         if (MAX_OVERALL_MEM < MIN_RANGE || MAX_OVERALL_MEM > MAX_RANGE) {
             invalidArg = true;
             errorMessages << "delays-per-exec out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;
@@ -254,7 +254,7 @@ void initialize(const string& configFilePath) {
     }
 
     if (configMap.find("mem-per-frame") != configMap.end()) {
-        MEM_PER_FRAME = stoull(configMap["mem-per-frame"]);
+        MEM_PER_FRAME = static_cast<size_t>(stoull(configMap["mem-per-frame"]));
         if (MEM_PER_FRAME < MIN_RANGE || MEM_PER_FRAME > MAX_RANGE) {
             invalidArg = true;
             errorMessages << "mem-per-frame out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;
@@ -266,7 +266,7 @@ void initialize(const string& configFilePath) {
     }
 
     if (configMap.find("mem-per-proc") != configMap.end()) {
-        MEM_PER_PROC = stoull(configMap["mem-per-proc"]);
+        MEM_PER_PROC = static_cast<size_t>(stoull(configMap["mem-per-proc"]));
         if (MEM_PER_PROC < MIN_RANGE || MEM_PER_PROC > MAX_RANGE) {
             invalidArg = true;
             errorMessages << "mem-per-proc out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;

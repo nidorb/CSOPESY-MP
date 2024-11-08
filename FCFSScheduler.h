@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <thread>
 
 #include "Process.h"
@@ -11,7 +10,7 @@
 class FCFSScheduler : public Scheduler {
 public:
 	const int numCores;
-	vector<unique_ptr<Core>> cores;
+	
 
 	FCFSScheduler(int NUM_CORES) : numCores(NUM_CORES){
 		for (int i = 0; i < numCores; i++) {

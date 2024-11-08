@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <mutex>
+#include <vector>
 
 #include "Process.h"
 #include "Core.h"
@@ -13,6 +14,8 @@ public:
 
     vector<shared_ptr<Process>> readyQueue;  // Stores processes ready to be assigned to a CPU core
     vector<shared_ptr<Process>> allProcesses;  // Store all processes
+
+    vector<unique_ptr<Core>> cores;
 
     bool isRunning = true;
 
@@ -42,18 +45,27 @@ public:
         }
     }
 
+    bool areCoresFree() {
+        for (const auto& core : cores) {
+            if (!core->isCoreFree()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     void handleMemoryFileGeneration() {
         int quantumCtr = 0;
 
         while (isRunning) {
-            if(isGenerating){
+            if (!areCoresFree()){
                 if (quantumCtr % QUANTUM_CYCLES == 0) {
                     memoryAllocator->createMemoryFile(quantumCtr);
                 }
                 quantumCtr++;
             }
 			
-            this_thread::sleep_for(chrono::milliseconds(100)); 
+            this_thread::sleep_for(chrono::milliseconds(200)); 
         }
     }
 };

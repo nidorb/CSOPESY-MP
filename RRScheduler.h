@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <thread>
 
 #include "Process.h"
@@ -11,7 +10,6 @@
 class RRScheduler : public Scheduler {
 public:
 	const int numCores;
-	vector<unique_ptr<Core>> cores;
 
 	mutex mtx;
 
@@ -61,7 +59,7 @@ public:
 				}
 			}
 
-			this_thread::sleep_for(chrono::milliseconds(10));
+			this_thread::sleep_for(chrono::milliseconds(100));
 		}
 	}
 
