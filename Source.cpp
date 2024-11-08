@@ -267,6 +267,9 @@ void initialize(const string& configFilePath) {
 
     isInitialized = true;
 
+    if (memoryAllocator) memoryAllocator.reset();
+    memoryAllocator = make_unique<FlatMemoryAllocator>(MAX_OVERALL_MEM);
+
     if (SCHEDULER_ALGO == "fcfs") {
         if (scheduler) scheduler.reset();
         scheduler = make_unique<FCFSScheduler>(NUM_CORES);
@@ -275,7 +278,6 @@ void initialize(const string& configFilePath) {
         if (scheduler) scheduler.reset();
         scheduler = make_unique<RRScheduler>(NUM_CORES);
     }
-
 }
 
 
@@ -441,7 +443,6 @@ int main() {
 
     header();
 
-    memoryAllocator = make_unique<FlatMemoryAllocator>(MAX_OVERALL_MEM);
 
     thread inputThread(handleInput);
     inputThread.join();
