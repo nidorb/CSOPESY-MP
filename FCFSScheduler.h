@@ -42,21 +42,16 @@ public:
 						shared_ptr<Process> curProcess = readyQueue.front();
 
 						void* memory = memoryAllocator->allocate(curProcess);
-
-						if (memory == nullptr) {
-							cout << "Memory allocation failed for process " << curProcess->getProcessName() << endl;
-							this_thread::sleep_for(chrono::milliseconds(500));
-						}
-						else {
-							cout << "Allocated memory for process " << curProcess->getProcessName() << endl;
-							// 
-							 //cout << "\nMemory State: \n" << endl;
-							 //memoryAllocator->visualizeMemory();
-							 //cout << "\n\n";
-
+						if (memory != nullptr) {
+							//cout << "Allocated memory for process " << curProcess->getProcessName() << endl;
+							
 							// Assign process to CPU core
 							readyQueue.erase(readyQueue.begin());
 							cores[i]->assignProcess(curProcess);
+						}
+						else {
+							cout << "Memory allocation failed for process " << curProcess->getProcessName() << endl;
+							this_thread::sleep_for(chrono::milliseconds(500));
 						}
 					}
 				}	

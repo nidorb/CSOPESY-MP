@@ -38,14 +38,31 @@ public:
 	}
 
 	void visualizeMemory() {
-		for (size_t i = 0; i < memory.size(); i++) {
-			if (memory[i]) {
-				cout << memory[i]->getProcessName() << endl;
+		cout << "----- end ----- = " << memory.size() - 1 << "\n\n";
+
+		int index = memory.size() - 1;
+		shared_ptr<Process> curProcess = nullptr;
+
+		while (index >= 0) {
+			if (memory[index] != nullptr && memory[index] != curProcess) {
+				if (curProcess != nullptr) {
+					cout << index + 1 << "\n\n";
+				}
+
+				cout << index << "\n";
+				cout << memory[index]->getProcessName() << "\n";
+
+				curProcess = memory[index];
 			}
-			else {
-				cout << memory[i] << endl;
-			}
+
+			index--;
 		}
+		
+		if (curProcess != nullptr) {
+			cout << index + 1 << "\n";
+		}
+
+		cout << "\n----- start ----- = " << 0 << "\n";
 	}
 	
 private:

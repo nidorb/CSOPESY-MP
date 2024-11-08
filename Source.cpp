@@ -29,9 +29,9 @@ uint64_t Process::DELAYS_PER_EXEC;
 size_t Process::memoryRequired;
 
 // Memory parameters
-size_t MAX_OVERALL_MEM = 32;  // 16384
-size_t MEM_PER_FRAME = 4;  // 16
-size_t MEM_PER_PROC = 9;  // 4096
+size_t MAX_OVERALL_MEM = 64;  // 16384
+size_t MEM_PER_FRAME = 8;  // 16
+size_t MEM_PER_PROC = 16;  // 4096
 
 uint64_t RRScheduler::QUANTUM_CYCLES;
 uint64_t Scheduler::BATCH_PROCESS_FREQ;
@@ -301,7 +301,7 @@ void handleInput() {
             header();
         }
 
-        else if (input == "test") {
+        else if (input == "visualize") {
             memoryAllocator->visualizeMemory();
         }
 
