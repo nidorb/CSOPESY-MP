@@ -6,13 +6,14 @@
 #include "Process.h"
 #include "Core.h"
 #include "Scheduler.h"
+#include "FlatMemoryAllocator.h"
 
 class FCFSScheduler : public Scheduler {
 public:
 	const int numCores;
 	vector<unique_ptr<Core>> cores;
 
-	FCFSScheduler(int NUM_CORES) : numCores(NUM_CORES) {
+	FCFSScheduler(int NUM_CORES) : numCores(NUM_CORES){
 		for (int i = 0; i < numCores; i++) {
 			auto core = make_unique<Core>(i);
 
@@ -39,10 +40,17 @@ public:
 				if (!readyQueue.empty()) {
 					if (cores[i]->isCoreFree()) {
 						shared_ptr<Process> curProcess = readyQueue.front();
-						readyQueue.erase(readyQueue.begin());
 
-						// Assign process to CPU core
-						cores[i]->assignProcess(curProcess);
+						if (memoryAllocator->allocate(curProcess) == nullptr) {
+							cout << "Memory allocation failed for process " << curProcess->getProcessName() << endl;
+							this_thread::sleep_for(chrono::milliseconds(500));
+						}
+						else {
+							cout << "Allocated memory for process " << curProcess->getProcessName() << endl;
+							// Assign process to CPU core
+							readyQueue.erase(readyQueue.begin());
+							cores[i]->assignProcess(curProcess);
+						}
 					}
 				}	
 			}
