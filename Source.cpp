@@ -29,9 +29,9 @@ uint64_t Process::DELAYS_PER_EXEC;
 size_t Process::memoryRequired;
 
 // Memory parameters
-size_t MAX_OVERALL_MEM = 64;  // 16384
-size_t MEM_PER_FRAME = 8;  // 16
-size_t MEM_PER_PROC = 16;  // 4096
+size_t MAX_OVERALL_MEM;
+size_t MEM_PER_FRAME;
+size_t MEM_PER_PROC;
 
 uint64_t RRScheduler::QUANTUM_CYCLES;
 uint64_t Scheduler::QUANTUM_CYCLES;
@@ -241,6 +241,42 @@ void initialize(const string& configFilePath) {
         errorMessages << "delays-per-exec not found in config file." << endl;
     }
 
+    if (configMap.find("delays-per-exec") != configMap.end()) {
+        MAX_OVERALL_MEM = stoull(configMap["max-overall-mem"]);
+        if (MAX_OVERALL_MEM < MIN_RANGE || MAX_OVERALL_MEM > MAX_RANGE) {
+            invalidArg = true;
+            errorMessages << "delays-per-exec out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "max-overall-mem not found in config file." << endl;
+    }
+
+    if (configMap.find("mem-per-frame") != configMap.end()) {
+        MEM_PER_FRAME = stoull(configMap["mem-per-frame"]);
+        if (MEM_PER_FRAME < MIN_RANGE || MEM_PER_FRAME > MAX_RANGE) {
+            invalidArg = true;
+            errorMessages << "mem-per-frame out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "mem-per-frame not found in config file." << endl;
+    }
+
+    if (configMap.find("mem-per-proc") != configMap.end()) {
+        MEM_PER_PROC = stoull(configMap["mem-per-proc"]);
+        if (MEM_PER_PROC < MIN_RANGE || MEM_PER_PROC > MAX_RANGE) {
+            invalidArg = true;
+            errorMessages << "mem-per-proc out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "mem-per-proc not found in config file." << endl;
+    }
+
     configFile.close();
 
     if (invalidArg) {
@@ -256,6 +292,9 @@ void initialize(const string& configFilePath) {
     cout << "MIN_INS: " << MIN_INS << endl;
     cout << "MAX_INS: " << MAX_INS << endl;
     cout << "DELAYS_PER_EXEC: " << DELAYS_PER_EXEC << endl;
+    cout << "MAX_OVERALL_MEM: " << MAX_OVERALL_MEM << endl;
+    cout << "MEM_PER_FRAME: " << MEM_PER_FRAME << endl;
+    cout << "MEM_PER_PROC: " << MEM_PER_PROC << endl;
 
     Process::MIN_INS = MIN_INS;
     Process::MAX_INS = MAX_INS;
