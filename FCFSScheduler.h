@@ -10,7 +10,6 @@
 class FCFSScheduler : public Scheduler {
 public:
 	const int numCores;
-	
 
 	FCFSScheduler(int NUM_CORES) : numCores(NUM_CORES){
 		for (int i = 0; i < numCores; i++) {

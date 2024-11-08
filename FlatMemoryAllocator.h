@@ -65,18 +65,6 @@ public:
 		cout << "\n----- start ----- = " << 0 << "\n";
 	}
 
-	int getExternalFragmentation() {
-        int totalFreeSpace = 0;
-
-        for (const auto& block : memory) {
-            if (block == nullptr) {
-                totalFreeSpace++;
-			}
-        }
-
-        return totalFreeSpace;
-    }
-
 	string getCurDate() {
         time_t now = time(0);
         struct tm tstruct;
@@ -109,7 +97,7 @@ public:
     }
 
 	 void createMemoryFile(int quantumCycle) {
-		std::ostringstream filePath;    
+		ostringstream filePath;    
 		filePath << "memory_stamp_" << quantumCycle << ".txt";
 
         ofstream outFile(filePath.str());
@@ -119,14 +107,13 @@ public:
 			return;
 		}
 
-		int frag = getExternalFragmentation();
+		int frag = maximumSize - allocatedSize;
 		string timestamp = getCurDate();
 		int numProcess = getNumProcess();
 
 		outFile << "Timestamp: " << timestamp << "\n";
 		outFile << "Number of processes in memory: " << numProcess << "\n";
 		outFile << "Total external fragmentation in KB: " << frag << "\n\n";
-
 
 		outFile << "----- end ----- = " << memory.size() - 1 << "\n\n";
 
@@ -156,8 +143,6 @@ public:
 
 		outFile.close();
 	}
-
-
 	
 private:
 	size_t maximumSize;
