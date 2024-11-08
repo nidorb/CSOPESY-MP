@@ -31,7 +31,7 @@ size_t Process::memoryRequired;
 // Memory parameters
 size_t MAX_OVERALL_MEM = 32;  // 16384
 size_t MEM_PER_FRAME = 4;  // 16
-size_t MEM_PER_PROC = 8;  // 4096
+size_t MEM_PER_PROC = 9;  // 4096
 
 uint64_t RRScheduler::QUANTUM_CYCLES;
 uint64_t Scheduler::BATCH_PROCESS_FREQ;

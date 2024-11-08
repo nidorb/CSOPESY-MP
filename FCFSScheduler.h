@@ -41,12 +41,19 @@ public:
 					if (cores[i]->isCoreFree()) {
 						shared_ptr<Process> curProcess = readyQueue.front();
 
-						if (memoryAllocator->allocate(curProcess) == nullptr) {
+						void* memory = memoryAllocator->allocate(curProcess);
+
+						if (memory == nullptr) {
 							cout << "Memory allocation failed for process " << curProcess->getProcessName() << endl;
 							this_thread::sleep_for(chrono::milliseconds(500));
 						}
 						else {
 							cout << "Allocated memory for process " << curProcess->getProcessName() << endl;
+							// 
+							 //cout << "\nMemory State: \n" << endl;
+							 //memoryAllocator->visualizeMemory();
+							 //cout << "\n\n";
+
 							// Assign process to CPU core
 							readyQueue.erase(readyQueue.begin());
 							cores[i]->assignProcess(curProcess);
