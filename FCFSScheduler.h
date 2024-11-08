@@ -30,6 +30,9 @@ public:
 
 		thread generatorThread = thread(&FCFSScheduler::handleProcessGenerator, this);
 		generatorThread.detach();
+
+		thread memoryFileThread = thread(&FCFSScheduler::handleMemoryFileGeneration, this);
+		memoryFileThread.detach();
 	}
 
 	void handleScheduler() {

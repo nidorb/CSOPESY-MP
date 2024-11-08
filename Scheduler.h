@@ -9,6 +9,7 @@
 class Scheduler {
 public:
     static uint64_t BATCH_PROCESS_FREQ;
+    static uint64_t QUANTUM_CYCLES;
 
     vector<shared_ptr<Process>> readyQueue;  // Stores processes ready to be assigned to a CPU core
     vector<shared_ptr<Process>> allProcesses;  // Store all processes
@@ -38,6 +39,21 @@ public:
             }
 
             this_thread::sleep_for(chrono::milliseconds(500));
+        }
+    }
+
+    void handleMemoryFileGeneration() {
+        int quantumCtr = 0;
+
+        while (isRunning) {
+            if(isGenerating){
+                if (quantumCtr % QUANTUM_CYCLES == 0) {
+                    memoryAllocator->createMemoryFile(quantumCtr);
+                }
+                quantumCtr++;
+            }
+			
+            this_thread::sleep_for(chrono::milliseconds(100)); 
         }
     }
 };

@@ -34,6 +34,9 @@ public:
 
 		thread generatorThread = thread(&RRScheduler::handleProcessGenerator, this);
 		generatorThread.detach();
+
+		thread memoryFileThread = thread(&RRScheduler::handleMemoryFileGeneration, this);
+		memoryFileThread.detach();
 	}
 
 	void handleScheduler() {

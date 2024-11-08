@@ -64,6 +64,100 @@ public:
 
 		cout << "\n----- start ----- = " << 0 << "\n";
 	}
+
+	int getExternalFragmentation() {
+        int totalFreeSpace = 0;
+
+        for (const auto& block : memory) {
+            if (block == nullptr) {
+                totalFreeSpace++;
+			}
+        }
+
+        return totalFreeSpace;
+    }
+
+	string getCurDate() {
+        time_t now = time(0);
+        struct tm tstruct;
+        #ifdef _WIN32
+                localtime_s(&tstruct, &now);
+        #else
+                localtime_r(&now, &tstruct);
+        #endif
+
+        char date_time[100];
+        strftime(date_time, sizeof(date_time), "(%m/%d/%Y, %I:%M:%S %p)", &tstruct);
+
+        return date_time;
+    }
+
+	int getNumProcess() const {
+		int index = memory.size() - 1;
+		int numProcess = 0;
+		shared_ptr<Process> curProcess = nullptr;
+
+		while (index >= 0) {
+			if (memory[index] != nullptr && memory[index] != curProcess) {
+				numProcess++;
+				curProcess = memory[index];
+			}
+
+			index--;
+		}
+        return numProcess;
+    }
+
+	 void createMemoryFile(int quantumCycle) {
+		std::ostringstream filePath;    
+		filePath << "memory_stamp_" << quantumCycle << ".txt";
+
+        ofstream outFile(filePath.str());
+
+		if (!outFile) {
+			cerr << "Error opening file for writing." << endl;
+			return;
+		}
+
+		int frag = getExternalFragmentation();
+		string timestamp = getCurDate();
+		int numProcess = getNumProcess();
+
+		outFile << "Timestamp: " << timestamp << "\n";
+		outFile << "Number of processes in memory: " << numProcess << "\n";
+		outFile << "Total external fragmentation in KB: " << frag << "\n\n";
+
+
+		outFile << "----- end ----- = " << memory.size() - 1 << "\n\n";
+
+		int index = memory.size() - 1;
+		shared_ptr<Process> curProcess = nullptr;
+
+		while (index >= 0) {
+			if (memory[index] != nullptr && memory[index] != curProcess) {
+				if (curProcess != nullptr) {
+					outFile << index + 1 << "\n\n";
+				}
+
+				outFile << index << "\n";
+				outFile << memory[index]->getProcessName() << "\n";
+
+				curProcess = memory[index];
+			}
+
+			index--;
+		}
+		
+		if (curProcess != nullptr) {
+			outFile << index + 1 << "\n";
+		}
+
+		outFile << "\n----- start ----- = " << 0 << "\n";
+
+		outFile.close();
+	}
+
+
 	
 private:
 	size_t maximumSize;

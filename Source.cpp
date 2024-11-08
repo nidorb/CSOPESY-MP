@@ -34,6 +34,7 @@ size_t MEM_PER_FRAME = 8;  // 16
 size_t MEM_PER_PROC = 16;  // 4096
 
 uint64_t RRScheduler::QUANTUM_CYCLES;
+uint64_t Scheduler::QUANTUM_CYCLES;
 uint64_t Scheduler::BATCH_PROCESS_FREQ;
 
 uint64_t QUANTUM_CYCLES;
@@ -261,6 +262,7 @@ void initialize(const string& configFilePath) {
     Process::DELAYS_PER_EXEC = DELAYS_PER_EXEC;
 
     RRScheduler::QUANTUM_CYCLES = QUANTUM_CYCLES;
+    Scheduler::QUANTUM_CYCLES = QUANTUM_CYCLES;
     Scheduler::BATCH_PROCESS_FREQ = BATCH_PROCESS_FREQ;
 
     Process::memoryRequired = MEM_PER_PROC;
