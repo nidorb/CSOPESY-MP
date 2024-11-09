@@ -37,9 +37,34 @@ public:
 		}
 	}
 
+	string getCurDate() {
+		time_t now = time(0);
+		struct tm tstruct;
+		#ifdef _WIN32
+				localtime_s(&tstruct, &now);
+		#else
+				localtime_r(&now, &tstruct);
+		#endif
+
+		char date_time[100];
+		strftime(date_time, sizeof(date_time), "(%m/%d/%Y, %I:%M:%S %p)", &tstruct);
+
+		return date_time;
+	}
+
 	void visualizeMemory() {
+		lock_guard<mutex> lock(mtx);
+
+		int frag = maximumSize - allocatedSize;
+		string timestamp = getCurDate();
+
+		cout << "Timestamp: " << timestamp << "\n";
+		cout << "Number of processes in memory: " << numProcesses << "\n";
+		cout << "Total external fragmentation in KB: " << frag << "\n\n";
+
 		cout << "----- end ----- = " << memory.size() - 1 << "\n\n";
 
+		int ctr = 0;
 		int index = memory.size() - 1;
 		shared_ptr<Process> curProcess = nullptr;
 
@@ -65,38 +90,9 @@ public:
 		cout << "\n----- start ----- = " << 0 << "\n";
 	}
 
-	string getCurDate() {
-        time_t now = time(0);
-        struct tm tstruct;
-        #ifdef _WIN32
-                localtime_s(&tstruct, &now);
-        #else
-                localtime_r(&now, &tstruct);
-        #endif
-
-        char date_time[100];
-        strftime(date_time, sizeof(date_time), "(%m/%d/%Y, %I:%M:%S %p)", &tstruct);
-
-        return date_time;
-    }
-
-	int getNumProcess() const {
-		int index = memory.size() - 1;
-		int numProcess = 0;
-		shared_ptr<Process> curProcess = nullptr;
-
-		while (index >= 0) {
-			if (memory[index] != nullptr && memory[index] != curProcess) {
-				numProcess++;
-				curProcess = memory[index];
-			}
-
-			index--;
-		}
-        return numProcess;
-    }
-
 	 void createMemoryFile(int quantumCycle) {
+		lock_guard<mutex> lock(mtx);
+
 		ostringstream filePath;    
 		filePath << "memory_stamp_" << quantumCycle << ".txt";
 
@@ -109,10 +105,9 @@ public:
 
 		int frag = maximumSize - allocatedSize;
 		string timestamp = getCurDate();
-		int numProcess = getNumProcess();
 
 		outFile << "Timestamp: " << timestamp << "\n";
-		outFile << "Number of processes in memory: " << numProcess << "\n";
+		outFile << "Number of processes in memory: " << numProcesses << "\n";
 		outFile << "Total external fragmentation in KB: " << frag << "\n\n";
 
 		outFile << "----- end ----- = " << memory.size() - 1 << "\n\n";
@@ -121,13 +116,15 @@ public:
 		shared_ptr<Process> curProcess = nullptr;
 
 		while (index >= 0) {
-			if (memory[index] != nullptr && memory[index] != curProcess) {
+			if (memory[index] != curProcess) {
 				if (curProcess != nullptr) {
 					outFile << index + 1 << "\n\n";
 				}
 
-				outFile << index << "\n";
-				outFile << memory[index]->getProcessName() << "\n";
+				if (memory[index] != nullptr) {
+					outFile << index << "\n";
+					outFile << memory[index]->getProcessName() << "\n";
+				}
 
 				curProcess = memory[index];
 			}
@@ -135,7 +132,7 @@ public:
 			index--;
 		}
 		
-		if (curProcess != nullptr) {
+		if (memory[0] != nullptr) {
 			outFile << index + 1 << "\n";
 		}
 
@@ -145,8 +142,11 @@ public:
 	}
 	
 private:
+	mutex mtx;
+
 	size_t maximumSize;
 	size_t allocatedSize;
+	size_t numProcesses = 0;
 	vector<shared_ptr<Process>> memory;
 
 	// Check if the memory block is large enough
@@ -156,15 +156,21 @@ private:
 
 	// Mark the memory block as allocated
 	void allocateAt(size_t index, shared_ptr<Process> process) {
+		lock_guard<mutex> lock(mtx);
+
 		size_t size = process->memoryRequired;
 
 		fill(memory.begin() + index, memory.begin() + index + size, process);
 		allocatedSize += size;
+		numProcesses++;
 	}
 
 	// Mark the memory block as deallocated
 	void deallocateAt(size_t index, size_t size) {
+		lock_guard<mutex> lock(mtx);
+
 		fill(memory.begin() + index, memory.begin() + index + size, nullptr);
 		allocatedSize -= size;
+		numProcesses--;
 	}
 };

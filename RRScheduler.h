@@ -43,7 +43,7 @@ public:
 			// Check if a core is available to assign a process
 			for (int i = 0; i < numCores; i++) {
 				if (!readyQueue.empty()) {
-					if (cores[i]->isCoreFree() || cores[i]->nextProcess == nullptr) {
+					if (cores[i]->isCoreFree()) {
 						shared_ptr<Process> curProcess = readyQueue.front();
 						readyQueue.erase(readyQueue.begin());
 						
@@ -59,7 +59,7 @@ public:
 				}
 			}
 
-			this_thread::sleep_for(chrono::milliseconds(100));
+			this_thread::sleep_for(chrono::milliseconds(10));
 		}
 	}
 
