@@ -15,6 +15,7 @@ public:
 private:
     int pid;
     string name, timestamp;
+    bool isAllocated = false;
 
     uint64_t commandCtr = 0;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
@@ -159,6 +160,14 @@ public:
 
     void setCPUCoreID(int cpuCoreID) {
         this->cpuCoreID = cpuCoreID;
+    }
+
+    bool getIsAllocated() const {
+        return isAllocated;
+    }
+
+    void setIsAllocated(bool isAllocated) {
+        this->isAllocated = isAllocated;
     }
 };
 

@@ -33,7 +33,7 @@ public:
 		}
 
 		if (index != -1) {
-			deallocateAt(index, process->memoryRequired);
+			deallocateAt(index, process);
 		}
 	}
 
@@ -163,14 +163,20 @@ private:
 		fill(memory.begin() + index, memory.begin() + index + size, process);
 		allocatedSize += size;
 		numProcesses++;
+
+		process->setIsAllocated(true);
 	}
 
 	// Mark the memory block as deallocated
-	void deallocateAt(size_t index, size_t size) {
+	void deallocateAt(size_t index, shared_ptr<Process> process) {
 		lock_guard<mutex> lock(mtx);
+
+		size_t size = process->memoryRequired;
 
 		fill(memory.begin() + index, memory.begin() + index + size, nullptr);
 		allocatedSize -= size;
 		numProcesses--;
+
+		process->setIsAllocated(false);
 	}
 };

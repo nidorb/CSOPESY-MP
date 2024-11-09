@@ -22,7 +22,7 @@ public:
     condition_variable cv;
     mutex mtx;
     shared_ptr<Process> currentProcess;
-    //shared_ptr<Process> nextProcess;
+    shared_ptr<Process> nextProcess;
     function<void(shared_ptr<Process>)> onProcessPreempt;
 
     bool isRunning = true;
@@ -43,9 +43,8 @@ public:
                         onProcessPreempt(currentProcess);
                     }
 
-                    memoryAllocator->deallocate(currentProcess);
-
-                    currentProcess = nullptr;
+                    currentProcess = nextProcess;
+                    nextProcess = nullptr;
 
                     lock.unlock();
                     cv.notify_all();
@@ -64,7 +63,12 @@ public:
     void assignProcess(const shared_ptr<Process>& process, uint64_t quantum_cycles = -1) {
         unique_lock<mutex> lock(mtx);
 
-        currentProcess = process;
+        if (currentProcess == nullptr) {
+            currentProcess = process;
+        }
+        else {
+            nextProcess = process;
+        }
         
         this->quantum_cycles = quantum_cycles;
 

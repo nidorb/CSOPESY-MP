@@ -43,17 +43,23 @@ public:
 			// Check if a core is available to assign a process
 			for (int i = 0; i < numCores; i++) {
 				if (!readyQueue.empty()) {
-					if (cores[i]->isCoreFree()) {
+					if (cores[i]->isCoreFree() || cores[i]->nextProcess == nullptr) {
 						shared_ptr<Process> curProcess = readyQueue.front();
 						readyQueue.erase(readyQueue.begin());
 						
-						void* memory = memoryAllocator->allocate(curProcess);
-						if (memory != nullptr) {
-							// Assign process to CPU core
+						if (curProcess->getIsAllocated()) {
 							cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 						}
 						else {
-							readyQueue.push_back(curProcess);
+							void* memory = memoryAllocator->allocate(curProcess);
+
+							if (memory != nullptr) {
+								// Assign process to CPU core
+								cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
+							}
+							else {
+								readyQueue.push_back(curProcess);
+							}
 						}
 					}
 				}
@@ -68,6 +74,10 @@ public:
 
 		if (process->getState() == Process::READY) {
 			readyQueue.push_back(process);
+		}
+
+		if (process->getState() == Process::FINISHED) {
+			memoryAllocator->deallocate(process);
 		}
 	}
 };
