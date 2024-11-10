@@ -55,7 +55,7 @@ public:
 	void visualizeMemory() {
 		lock_guard<mutex> lock(mtx);
 
-		int frag = maximumSize - allocatedSize;
+		int frag = static_cast<int>(maximumSize - allocatedSize);
 		string timestamp = getCurDate();
 
 		cout << "Timestamp: " << timestamp << "\n";
@@ -65,7 +65,7 @@ public:
 		cout << "----- end ----- = " << memory.size() - 1 << "\n\n";
 
 		int ctr = 0;
-		int index = memory.size() - 1;
+		int index = static_cast<int>(memory.size() - 1);
 		shared_ptr<Process> curProcess = nullptr;
 
 		while (index >= 0) {
@@ -103,7 +103,7 @@ public:
 			return;
 		}
 
-		int frag = maximumSize - allocatedSize;
+		int frag = static_cast<int>(maximumSize - allocatedSize);
 		string timestamp = getCurDate();
 
 		outFile << "Timestamp: " << timestamp << "\n";
@@ -112,7 +112,7 @@ public:
 
 		outFile << "----- end ----- = " << memory.size() - 1 << "\n\n";
 
-		int index = memory.size() - 1;
+		int index = static_cast<int>(memory.size() - 1);
 		shared_ptr<Process> curProcess = nullptr;
 
 		while (index >= 0) {
