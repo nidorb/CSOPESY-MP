@@ -29,16 +29,15 @@ uint64_t Process::DELAYS_PER_EXEC;
 size_t Process::MIN_MEM_PER_PROC;
 size_t Process::MAX_MEM_PER_PROC;
 
-size_t Process::memoryRequired;
 size_t Process::MEM_PER_PAGE;
 
 // Memory parameters
 size_t MAX_OVERALL_MEM;
 size_t MEM_PER_FRAME;
 
-size_t MEM_PER_PROC;  // Delete this, replaced with MIN and MAX
-size_t MIN_MEM_PER_PROC = 2;
-size_t MAX_MEM_PER_PROC = 16384;
+size_t MEM_PER_PROC;  // Delete this
+size_t MIN_MEM_PER_PROC = 4096;
+size_t MAX_MEM_PER_PROC = 4096;
 
 size_t numPages;
 
@@ -321,10 +320,8 @@ void initialize(const string& configFilePath) {
 
     if (memoryAllocator) memoryAllocator.reset();
     
-    numPages = MAX_OVERALL_MEM / MEM_PER_FRAME;
-    
     //memoryAllocator = make_unique<FlatMemoryAllocator>(MAX_OVERALL_MEM);
-    memoryAllocator = make_unique<PagingAllocator>(MAX_OVERALL_MEM, numPages);
+    memoryAllocator = make_unique<PagingAllocator>(MAX_OVERALL_MEM, MEM_PER_FRAME);
 
     if (SCHEDULER_ALGO == "fcfs") {
         if (scheduler) scheduler.reset();
@@ -361,6 +358,10 @@ void handleInput() {
 
         else if (input == "visualize") {
             memoryAllocator->visualizeMemory();
+        }
+
+        else if (input == "vmstat") {
+            memoryAllocator->vmstat();
         }
 
         else if (input == "initialize") {

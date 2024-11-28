@@ -17,22 +17,22 @@ private:
     string name, timestamp;
     bool isAllocated = false;
 
-    uint64_t commandCtr = 0;
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
     uint64_t totalWork;
     ProcessState currentState = READY;
 
+public:
+    uint64_t commandCtr = 0;
     uint64_t quantumCtr;
     uint64_t delayCtr;
 
-public:
     static int next_pid;
     static uint64_t MIN_INS;
     static uint64_t MAX_INS;
 
     static uint64_t DELAYS_PER_EXEC;
 
-    static size_t memoryRequired;
+    size_t memoryRequired;
     static size_t MEM_PER_PAGE;
 
     static size_t MIN_MEM_PER_PROC;
@@ -43,17 +43,16 @@ public:
     vector<size_t> allocatedFrames;  // Stores the frames this process is currently allocated in
 
     // Constructor
-    Process(const string& name) : name(name), timestamp(getCurDate()) {
+    Process(const string& name) : name(name), timestamp(getCurDate()), memoryRequired(randomMemorySize()) {
         totalWork = rand() % (MAX_INS - MIN_INS + 1) + MIN_INS;
         pid = next_pid++;
-        memoryRequired = randomMemorySize();
 
         if (name.empty()) {
             this->name = "Process_" + to_string(pid);
         }
     }
 
-    size_t randomMemorySize() {
+    static size_t randomMemorySize() {
         size_t minExp = static_cast<size_t>(log2(MIN_MEM_PER_PROC));
         size_t maxExp = static_cast<size_t>(log2(MAX_MEM_PER_PROC));
 
@@ -87,6 +86,10 @@ public:
         }
     }
 
+    void setState(ProcessState state) {
+        currentState = state;
+    }
+
     string getCurDateProc() {
         time_t now = time(0);
         struct tm tstruct;
@@ -98,46 +101,6 @@ public:
         char date_time[100];
         strftime(date_time, sizeof(date_time), "(%m/%d/%Y %I:%M:%S%p)", &tstruct);
         return date_time;
-    }
-
-    void createProcFile(uint64_t quantum_cycles) {
-        currentState = RUNNING;
-
-        ofstream logs;
-        string filename = name + ".txt";
-
-        if (commandCtr == 0) {
-            logs.open(filename);
-
-            logs << "Process name: " << name << "\n";
-            logs << "Logs: \n\n";
-        }
-        else {
-            logs.open(filename, ios::app);
-        }
-
-        quantumCtr = 0;
-        delayCtr = DELAYS_PER_EXEC;
-        while (quantumCtr < quantum_cycles) {
-            if (commandCtr == totalWork) { break; }
-
-            if (delayCtr > 0) {
-                delayCtr--;
-            }
-            else {
-                logs << getCurDateProc() << "   Core: " << cpuCoreID << "  \"Hello world from " << name << "!\"\n";
-                commandCtr++;
-
-                delayCtr = DELAYS_PER_EXEC;
-                quantumCtr++;
-            }
-
-            this_thread::sleep_for(chrono::milliseconds(100));
-        }
-
-        logs.close();
-
-        setPreemptState();
     }
 
     string getProcessName() {

@@ -33,8 +33,6 @@ public:
     void start() {
         coreThread = thread([this]() {
             while (isRunning) {
-                unique_lock<mutex> lock(mtx);
-                cv.wait(lock, [this]() { return currentProcess != nullptr || !isRunning; });
 
                 if (currentProcess != nullptr) {
                     executeProcess(currentProcess, quantum_cycles);
@@ -46,18 +44,21 @@ public:
                     currentProcess = nextProcess;
                     nextProcess = nullptr;
 
-                    lock.unlock();
-                    cv.notify_all();
+                }
+                else {
+                    memoryAllocator->idleTicks++;
+
+                    this_thread::sleep_for(chrono::milliseconds(100));
                 }
             }
             });
     }
 
-    void executeProcess(const shared_ptr<Process>& process, uint64_t quantum_cycles) {
+    void executeProcess(shared_ptr<Process>& process, uint64_t quantum_cycles) {
         if (process == nullptr) return;
 
         process->setCPUCoreID(id);
-        process->createProcFile(quantum_cycles);
+        createProcFile(process, quantum_cycles);
     }
 
     void assignProcess(const shared_ptr<Process>& process, uint64_t quantum_cycles = -1) {
@@ -85,6 +86,48 @@ public:
         if (coreThread.joinable()) {
             coreThread.join();
         }
+    }
+
+    void createProcFile(shared_ptr<Process>& process, uint64_t quantum_cycles) {
+        process->setState(Process::RUNNING);
+
+        ofstream logs;
+        string filename = process->getName() + ".txt";
+
+        if (process->commandCtr == 0) {
+            logs.open(filename);
+
+            logs << "Process name: " << process->getName() << "\n";
+            logs << "Logs: \n\n";
+        }
+        else {
+            logs.open(filename, ios::app);
+        }
+
+        process->quantumCtr = 0;
+        process->delayCtr = process->DELAYS_PER_EXEC;
+        while (process->quantumCtr < quantum_cycles) {
+            if (process->commandCtr == process->getTotalWork()) { break; }
+
+            if (process->delayCtr > 0) {
+                process->delayCtr--;
+            }
+            else {
+                logs << process->getCurDateProc() << "   Core: " << process->getCPUCoreID() << "  \"Hello world from " << process->getName() << "!\"\n";
+                process->commandCtr++;
+
+                process->delayCtr = process->DELAYS_PER_EXEC;
+                process->quantumCtr++;
+            }
+
+            memoryAllocator->activeTicks++;
+
+            this_thread::sleep_for(chrono::milliseconds(100));
+        }
+
+        logs.close();
+
+        process->setPreemptState();
     }
 
 private:

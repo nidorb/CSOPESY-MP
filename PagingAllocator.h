@@ -2,7 +2,15 @@
 
 class PagingAllocator {
 public:
-	PagingAllocator(size_t maxMemorySize, size_t numFrames) : maxMemorySize(maxMemorySize), numFrames(numFrames) {
+	// vmstat
+	size_t idleTicks;
+	size_t activeTicks;
+	size_t numPagedIn;
+	size_t numPagedOut;
+
+	PagingAllocator(size_t maxMemorySize, size_t memPerFrame) : maxMemorySize(maxMemorySize), memPerFrame(memPerFrame) {
+		numFrames = maxMemorySize / memPerFrame;
+
 		for (size_t i = 0; i < numFrames; i++) {
 
 			// Initialize the free frame list
@@ -55,6 +63,8 @@ public:
 
 			frameMap[frameIndex] = processId;
 			allocatedFrames.push_back(frameIndex);
+
+			numPagedIn++;
 		}
 
 		return allocatedFrames;
@@ -66,6 +76,8 @@ public:
 
 		// Add frame back to the free frame list
 		freeFrameList.push_back(frameIndex);
+
+		numPagedOut++;
 	}
 
 	void visualizeMemory() const {
@@ -82,8 +94,22 @@ public:
 		cout << "--------------------\n";
 	}
 
+	void vmstat() const {
+		size_t freeMemory = freeFrameList.size() * memPerFrame;
+
+		cout << "Total memory:\t\t"		<< maxMemorySize << " KB\n";
+		cout << "Used memory:\t\t"		<< maxMemorySize - freeMemory << " KB\n";
+		cout << "Free memory:\t\t"		<< freeMemory << " KB\n";
+		cout << "Idle CPU ticks:\t\t"		<< idleTicks << "\n";
+		cout << "Active CPU ticks:\t"	<< activeTicks << "\n";
+		cout << "Total CPU ticks:\t"	<< idleTicks + activeTicks << "\n";
+		cout << "Num paged in:\t\t"		<< numPagedIn << "\n";
+		cout << "Num paged out:\t\t"		<< numPagedOut << "\n";
+	}
+
 private:
 	size_t maxMemorySize;
+	size_t memPerFrame;
 	size_t numFrames;
 	unordered_map<size_t, size_t> frameMap;
 	vector<size_t> freeFrameList;
