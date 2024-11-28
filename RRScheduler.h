@@ -33,8 +33,8 @@ public:
 		thread generatorThread = thread(&RRScheduler::handleProcessGenerator, this);
 		generatorThread.detach();
 
-		thread memoryFileThread = thread(&RRScheduler::handleMemoryFileGeneration, this);
-		memoryFileThread.detach();
+		/*thread memoryFileThread = thread(&RRScheduler::handleMemoryFileGeneration, this);
+		memoryFileThread.detach();*/
 	}
 
 	void handleScheduler() {
@@ -51,13 +51,21 @@ public:
 							cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 						}
 						else {
-							void* memory = memoryAllocator->allocate(curProcess);
+							vector<size_t> frames = memoryAllocator->allocate(curProcess);
 
-							if (memory != nullptr) {
+							// Memory not full, frames successfully allocated
+							if (!frames.empty()) {
+								curProcess->allocatedFrames = frames;
+
 								// Assign process to CPU core
 								cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 							}
+
+							// Memory full
 							else {
+								// TODO: Replace line below with Backing Store operation.
+								//		 Instead of returning the process to RQ, store the oldest process in BS then deallocate.
+								//		 Then reallocate the new process if there's space.
 								readyQueue.push_back(curProcess);
 							}
 						}
@@ -78,6 +86,7 @@ public:
 
 		if (process->getState() == Process::FINISHED) {
 			memoryAllocator->deallocate(process);
+			process->allocatedFrames.clear();
 		}
 	}
 };

@@ -33,6 +33,11 @@ public:
     static uint64_t DELAYS_PER_EXEC;
 
     static size_t memoryRequired;
+    static size_t MEM_PER_PAGE;
+
+    size_t numFrames = memoryRequired / MEM_PER_PAGE;
+
+    vector<size_t> allocatedFrames;  // Stores the frames this process is currently allocated in
 
     // Constructor
     Process(const string& name) :

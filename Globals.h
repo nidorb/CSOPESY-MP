@@ -1,4 +1,4 @@
 #pragma once 
-#include "FlatMemoryAllocator.h"
+#include "PagingAllocator.h"
 
-extern unique_ptr<FlatMemoryAllocator> memoryAllocator;
+extern unique_ptr<PagingAllocator> memoryAllocator;

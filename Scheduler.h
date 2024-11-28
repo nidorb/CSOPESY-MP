@@ -54,7 +54,7 @@ public:
         return true;
     }
 
-    void handleMemoryFileGeneration() {
+    /*void handleMemoryFileGeneration() {
         int quantumCtr = 0;
 
         while (isRunning) {
@@ -67,5 +67,5 @@ public:
 			
             this_thread::sleep_for(chrono::milliseconds(200)); 
         }
-    }
+    }*/
 };

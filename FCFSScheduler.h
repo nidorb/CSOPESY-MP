@@ -11,6 +11,8 @@ class FCFSScheduler : public Scheduler {
 public:
 	const int numCores;
 
+	mutex mtx;
+
 	FCFSScheduler(int NUM_CORES) : numCores(NUM_CORES){
 		for (int i = 0; i < numCores; i++) {
 			auto core = make_unique<Core>(i);
@@ -29,8 +31,8 @@ public:
 		thread generatorThread = thread(&FCFSScheduler::handleProcessGenerator, this);
 		generatorThread.detach();
 
-		thread memoryFileThread = thread(&FCFSScheduler::handleMemoryFileGeneration, this);
-		memoryFileThread.detach();
+		/*thread memoryFileThread = thread(&FCFSScheduler::handleMemoryFileGeneration, this);
+		memoryFileThread.detach();*/
 	}
 
 	void handleScheduler() {
@@ -42,12 +44,13 @@ public:
 					if (cores[i]->isCoreFree()) {
 						shared_ptr<Process> curProcess = readyQueue.front();
 
-						void* memory = memoryAllocator->allocate(curProcess);
-						if (memory != nullptr) {
-							//cout << "Allocated memory for process " << curProcess->getProcessName() << endl;
-							
-							// Assign process to CPU core
+						vector<size_t> frames = memoryAllocator->allocate(curProcess);
+
+						// Frames successfully allocated if there's space
+						if (!frames.empty()) {
 							readyQueue.erase(readyQueue.begin());
+
+							// Assign process to CPU core
 							cores[i]->assignProcess(curProcess);
 						}
 						else {
@@ -63,6 +66,11 @@ public:
 	}
 
 	void handleProcessPreempt(const shared_ptr<Process>& process) {
-		// FCFS cannot preempt
+		lock_guard<mutex> lock(mtx);
+
+		if (process->getState() == Process::FINISHED) {
+			memoryAllocator->deallocate(process);
+			process->allocatedFrames.clear();
+		}
 	}
 };

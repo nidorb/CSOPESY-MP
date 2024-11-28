@@ -12,26 +12,30 @@
 #include "FCFSScheduler.h"
 #include "Scheduler.h"
 
-#include "FlatMemoryAllocator.h"
 #include "Globals.h"
+#include "PagingAllocator.h"
 
 using namespace std;
 
 int NUM_CORES;
 unique_ptr<Scheduler> scheduler;
-unique_ptr<FlatMemoryAllocator> memoryAllocator;
+unique_ptr<PagingAllocator> memoryAllocator;
 string SCHEDULER_ALGO;  // fcfs or rr
 
 int Process::next_pid = 0;
 uint64_t Process::MIN_INS;
 uint64_t Process::MAX_INS;
 uint64_t Process::DELAYS_PER_EXEC;
+
 size_t Process::memoryRequired;
+size_t Process::MEM_PER_PAGE;
 
 // Memory parameters
 size_t MAX_OVERALL_MEM;
 size_t MEM_PER_FRAME;
 size_t MEM_PER_PROC;
+
+size_t numPages;
 
 uint64_t RRScheduler::QUANTUM_CYCLES;
 uint64_t Scheduler::QUANTUM_CYCLES;
@@ -305,11 +309,16 @@ void initialize(const string& configFilePath) {
     Scheduler::BATCH_PROCESS_FREQ = BATCH_PROCESS_FREQ;
 
     Process::memoryRequired = MEM_PER_PROC;
+    Process::MEM_PER_PAGE = MEM_PER_FRAME;  // Page size = Frame size
 
     isInitialized = true;
 
     if (memoryAllocator) memoryAllocator.reset();
-    memoryAllocator = make_unique<FlatMemoryAllocator>(MAX_OVERALL_MEM);
+    
+    numPages = MAX_OVERALL_MEM / MEM_PER_FRAME;
+    
+    //memoryAllocator = make_unique<FlatMemoryAllocator>(MAX_OVERALL_MEM);
+    memoryAllocator = make_unique<PagingAllocator>(MAX_OVERALL_MEM, numPages);
 
     if (SCHEDULER_ALGO == "fcfs") {
         if (scheduler) scheduler.reset();
@@ -344,9 +353,9 @@ void handleInput() {
             header();
         }
 
-        else if (input == "visualize") {
+        /*else if (input == "visualize") {
             memoryAllocator->visualizeMemory();
-        }
+        }*/
 
         else if (input == "initialize") {
             initialize("config.txt");
