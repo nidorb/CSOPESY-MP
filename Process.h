@@ -35,19 +35,32 @@ public:
     static size_t memoryRequired;
     static size_t MEM_PER_PAGE;
 
+    static size_t MIN_MEM_PER_PROC;
+    static size_t MAX_MEM_PER_PROC;
+
     size_t numFrames = memoryRequired / MEM_PER_PAGE;
 
     vector<size_t> allocatedFrames;  // Stores the frames this process is currently allocated in
 
     // Constructor
-    Process(const string& name) :
-        name(name), timestamp(getCurDate()) {
+    Process(const string& name) : name(name), timestamp(getCurDate()) {
         totalWork = rand() % (MAX_INS - MIN_INS + 1) + MIN_INS;
         pid = next_pid++;
+        memoryRequired = randomMemorySize();
 
         if (name.empty()) {
             this->name = "Process_" + to_string(pid);
         }
+    }
+
+    size_t randomMemorySize() {
+        size_t minExp = static_cast<size_t>(log2(MIN_MEM_PER_PROC));
+        size_t maxExp = static_cast<size_t>(log2(MAX_MEM_PER_PROC));
+
+        size_t exp = rand() % (maxExp - minExp + 1) + minExp;
+        size_t value = 1 << exp;
+
+        return value;
     }
 
     string getCurDate() {

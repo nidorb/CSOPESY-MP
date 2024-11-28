@@ -26,6 +26,8 @@ int Process::next_pid = 0;
 uint64_t Process::MIN_INS;
 uint64_t Process::MAX_INS;
 uint64_t Process::DELAYS_PER_EXEC;
+size_t Process::MIN_MEM_PER_PROC;
+size_t Process::MAX_MEM_PER_PROC;
 
 size_t Process::memoryRequired;
 size_t Process::MEM_PER_PAGE;
@@ -33,7 +35,10 @@ size_t Process::MEM_PER_PAGE;
 // Memory parameters
 size_t MAX_OVERALL_MEM;
 size_t MEM_PER_FRAME;
-size_t MEM_PER_PROC;
+
+size_t MEM_PER_PROC;  // Delete this, replaced with MIN and MAX
+size_t MIN_MEM_PER_PROC = 2;
+size_t MAX_MEM_PER_PROC = 16384;
 
 size_t numPages;
 
@@ -308,7 +313,8 @@ void initialize(const string& configFilePath) {
     Scheduler::QUANTUM_CYCLES = QUANTUM_CYCLES;
     Scheduler::BATCH_PROCESS_FREQ = BATCH_PROCESS_FREQ;
 
-    Process::memoryRequired = MEM_PER_PROC;
+    Process::MIN_MEM_PER_PROC = MIN_MEM_PER_PROC;
+    Process::MAX_MEM_PER_PROC = MAX_MEM_PER_PROC;
     Process::MEM_PER_PAGE = MEM_PER_FRAME;  // Page size = Frame size
 
     isInitialized = true;
