@@ -68,6 +68,20 @@ public:
 		freeFrameList.push_back(frameIndex);
 	}
 
+	void visualizeMemory() const {
+		cout << "Memory Visualization:\n";
+		for (size_t frameIndex = 0; frameIndex < numFrames; frameIndex++) {
+			auto it = frameMap.find(frameIndex);
+			if (it != frameMap.end()) {
+				cout << "Frame " << frameIndex << " -> Process " << it->second << "\n";
+			}
+			else {
+				cout << "Frame " << frameIndex << " -> Free\n";
+			}
+		}
+		cout << "--------------------\n";
+	}
+
 private:
 	size_t maxMemorySize;
 	size_t numFrames;

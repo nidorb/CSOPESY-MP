@@ -359,9 +359,9 @@ void handleInput() {
             header();
         }
 
-        /*else if (input == "visualize") {
+        else if (input == "visualize") {
             memoryAllocator->visualizeMemory();
-        }*/
+        }
 
         else if (input == "initialize") {
             initialize("config.txt");
