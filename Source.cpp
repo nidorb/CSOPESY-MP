@@ -159,7 +159,7 @@ void displayProcessSMI() {
     int memUtilization = (memUsed * 100) / MAX_OVERALL_MEM;
 
     cout.precision(2);
-    std::cout << "----------------------------------------------\n";
+    std::cout << "\n----------------------------------------------\n";
     std::cout << "| PROCESS-SMI V01.00 Driver Version: 01.00 |\n";
     std::cout << "----------------------------------------------\n";
     std::cout << "CPU-Util: " << static_cast<int>(coresUsed * 100 / NUM_CORES) << "%" << std::endl;
