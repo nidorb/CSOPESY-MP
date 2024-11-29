@@ -34,10 +34,8 @@ size_t Process::MEM_PER_PAGE;
 // Memory parameters
 size_t MAX_OVERALL_MEM;
 size_t MEM_PER_FRAME;
-
-size_t MEM_PER_PROC;  // Delete this
-size_t MIN_MEM_PER_PROC = 4096;
-size_t MAX_MEM_PER_PROC = 4096;
+size_t MIN_MEM_PER_PROC;
+size_t MAX_MEM_PER_PROC;
 
 size_t numPages;
 

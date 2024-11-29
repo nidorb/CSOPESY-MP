@@ -38,7 +38,7 @@ public:
     static size_t MIN_MEM_PER_PROC;
     static size_t MAX_MEM_PER_PROC;
 
-    size_t numFrames = memoryRequired / MEM_PER_PAGE;
+    size_t numFrames = static_cast<size_t>(memoryRequired / MEM_PER_PAGE);
 
     vector<size_t> allocatedFrames;  // Stores the frames this process is currently allocated in
 
@@ -149,8 +149,8 @@ public:
     void setIsAllocated(bool isAllocated) {
         this->isAllocated = isAllocated;
     }
-    int getMemoryRequired() const {
-		return memoryRequired;
+    size_t getMemoryRequired() const {
+		return static_cast<size_t>(memoryRequired);;
 	}
 };
 
