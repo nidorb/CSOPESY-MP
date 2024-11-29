@@ -64,6 +64,11 @@ public:
 								cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 							}
 
+							// Memory is empty, process is too large for memory!
+							else if (memoryAllocator->memory.empty()) {
+								return;
+							}
+
 							// Memory full
 							else {
 								do {
