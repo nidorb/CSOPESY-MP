@@ -139,6 +139,45 @@ bool isPowerOfTwo(size_t n) {
     return (n > 0) && ((n & (n - 1)) == 0);
 }
 
+
+void displayProcessSMI() {
+    int memUsed = 0;
+    double coresUsed = 0;
+
+    std::vector<std::pair<std::string, int>> runningProcesses;
+
+    for (const shared_ptr<Process>& processPtr : scheduler->allProcesses) {
+        if (processPtr->getState() == Process::RUNNING) {
+            coresUsed++;
+            int memoryRequired = processPtr->getMemoryRequired();
+            memUsed += memoryRequired;
+
+            runningProcesses.emplace_back(processPtr->getName(), memoryRequired);
+        }
+    }
+
+    int memUtilization = (memUsed * 100) / MAX_OVERALL_MEM;
+
+    cout.precision(2);
+    std::cout << "----------------------------------------------\n";
+    std::cout << "| PROCESS-SMI V01.00 Driver Version: 01.00 |\n";
+    std::cout << "----------------------------------------------\n";
+    std::cout << "CPU-Util: " << static_cast<int>(coresUsed * 100 / NUM_CORES) << "%" << std::endl;
+    std::cout << "Memory Usage: " << memUsed << "MiB / " << MAX_OVERALL_MEM << "MiB\n";
+    std::cout << "Memory Util: " << memUtilization << "%\n\n";
+    std::cout << "----------------------------------------------\n";
+    std::cout << "Running processes and memory usage:\n";
+    std::cout << "----------------------------------------------\n";
+
+    for (const auto& process : runningProcesses) {
+        std::cout << process.first << " " << process.second << "MiB\n";
+    }
+
+    std::cout << "----------------------------------------------\n";
+}
+
+
+
 void initialize(const string& configFilePath) {
     ifstream configFile(configFilePath);
     if (!configFile) {
@@ -389,7 +428,9 @@ void handleInput() {
         else if (input == "initialize") {
             initialize("config.txt");
         }
-
+        else if (input == "process-smi") {
+            displayProcessSMI();
+        }
         
         else if (input == "scheduler-test") {
             scheduler->isGenerating = true;

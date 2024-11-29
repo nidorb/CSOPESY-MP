@@ -9,7 +9,7 @@ public:
 	// Find the first available block that can accomodate the process
 	// Returns address of location in memory vector where process is "allocated"
 	void* allocate(shared_ptr<Process> process) {
-		size_t size = process->memoryRequired;
+		size_t size = process->getMemoryRequired();
 
 		for (size_t i = 0; i <= maximumSize - size; i++) {
 			if (!memory[i] && canAllocateAt(i, size)) {
@@ -158,7 +158,7 @@ private:
 	void allocateAt(size_t index, shared_ptr<Process> process) {
 		lock_guard<mutex> lock(mtx);
 
-		size_t size = process->memoryRequired;
+		size_t size = process->getMemoryRequired();
 
 		fill(memory.begin() + index, memory.begin() + index + size, process);
 		allocatedSize += size;
@@ -171,7 +171,7 @@ private:
 	void deallocateAt(size_t index, shared_ptr<Process> process) {
 		lock_guard<mutex> lock(mtx);
 
-		size_t size = process->memoryRequired;
+		size_t size = process->getMemoryRequired();
 
 		fill(memory.begin() + index, memory.begin() + index + size, nullptr);
 		allocatedSize -= size;

@@ -19,6 +19,7 @@ private:
 
     int cpuCoreID = -1;  // Core ID that executed OR is executing the process
     uint64_t totalWork;
+    uint64_t memoryRequired;
     ProcessState currentState = READY;
 
 public:
@@ -32,7 +33,6 @@ public:
 
     static uint64_t DELAYS_PER_EXEC;
 
-    size_t memoryRequired;
     static size_t MEM_PER_PAGE;
 
     static size_t MIN_MEM_PER_PROC;
@@ -46,7 +46,6 @@ public:
     Process(const string& name) : name(name), timestamp(getCurDate()), memoryRequired(randomMemorySize()) {
         totalWork = rand() % (MAX_INS - MIN_INS + 1) + MIN_INS;
         pid = next_pid++;
-
         if (name.empty()) {
             this->name = "Process_" + to_string(pid);
         }
@@ -150,6 +149,9 @@ public:
     void setIsAllocated(bool isAllocated) {
         this->isAllocated = isAllocated;
     }
+    int getMemoryRequired() const {
+		return memoryRequired;
+	}
 };
 
 #endif
