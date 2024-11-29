@@ -17,6 +17,8 @@ public:
 
     vector<unique_ptr<Core>> cores;
 
+    vector<shared_ptr<Process>> backingStore;
+
     bool isRunning = true;
 
     int cpuTicks = 0;
@@ -68,4 +70,48 @@ public:
             this_thread::sleep_for(chrono::milliseconds(200)); 
         }
     }*/
+
+    void contextSwitch() {
+        // Remove the oldest process
+        shared_ptr<Process> oldProcess = memoryAllocator->memory.front();
+        memoryAllocator->memory.erase(memoryAllocator->memory.begin());
+
+        memoryAllocator->deallocate(oldProcess);
+
+        appendBackingStore(oldProcess);
+    }
+
+    void appendBackingStore(shared_ptr<Process> process) {
+        backingStore.push_back(process);
+
+        writeBackingStoreFile();
+    }
+
+    void eraseBackingStore(shared_ptr<Process> process) {
+        // Find the process if it's there (or not) and remove it
+        auto it = find(backingStore.begin(), backingStore.end(), process);
+        if (it != backingStore.end()) {
+            backingStore.erase(it);
+        }
+
+        writeBackingStoreFile();
+    }
+
+    void writeBackingStoreFile() {
+        const string filePath = "backing-store.txt";
+        ofstream outFile(filePath);
+
+        if (!outFile) {
+            cerr << "Error opening file for writing." << endl;
+            return;
+        }
+
+        for (const auto& process : backingStore) {
+            if (process) {
+                outFile << "Process ID: " << process->getPid() << ", Name: " << process->getName() << ", Pages: " << process->numFrames << ", Memory: " << process->getMemoryRequired() << ", Command Counter: " << process->getCommandCtr() << endl;
+            }
+        }
+
+        outFile.close();
+    }
 };

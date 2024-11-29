@@ -2,6 +2,8 @@
 
 class PagingAllocator {
 public:
+	vector<shared_ptr<Process>> memory;
+
 	// vmstat
 	size_t idleTicks;
 	size_t activeTicks;
@@ -29,6 +31,9 @@ public:
 		}
 		else {
 			vector<size_t> allocatedFrames = allocateFrames(numFramesNeeded, processId);
+
+			// Add to memory
+			memory.push_back(process);
 			process->setIsAllocated(true);
 
 			return allocatedFrames;
@@ -47,6 +52,12 @@ public:
 			deallocateFrame(frameIndex);
 			it = find_if(frameMap.begin(), frameMap.end(),
 				[processId](const auto& entry) { return entry.second == processId; });
+		}
+		
+		// Remove from memory
+		auto it_process = find(memory.begin(), memory.end(), process);
+		if (it_process != memory.end()) {
+			memory.erase(it_process);
 		}
 
 		process->setIsAllocated(false);

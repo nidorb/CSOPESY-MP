@@ -419,6 +419,14 @@ void handleInput() {
             memoryAllocator->visualizeMemory();
         }
 
+        else if (input == "backing-store") {
+            for (const auto& process : scheduler->backingStore) {
+                if (process) {
+                    cout << "Process ID: " << process->getPid() << ", Name: " << process->getName() << ", Pages: " << process->numFrames << ", Memory: " << process->getMemoryRequired() << ", Command Counter: " << process->getCommandCtr() << endl;
+                }
+            }
+        }
+
         else if (input == "vmstat") {
             memoryAllocator->vmstat();
         }

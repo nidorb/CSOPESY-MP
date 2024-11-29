@@ -53,10 +53,6 @@ public:
 							// Assign process to CPU core
 							cores[i]->assignProcess(curProcess);
 						}
-						else {
-							cout << "Memory allocation failed for process " << curProcess->getProcessName() << endl;
-							this_thread::sleep_for(chrono::milliseconds(500));
-						}
 					}
 				}	
 			}

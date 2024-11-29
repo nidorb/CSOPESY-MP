@@ -51,6 +51,9 @@ public:
 							cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 						}
 						else {
+							// If it's already in the backing store, search and remove it
+							eraseBackingStore(curProcess);
+
 							vector<size_t> frames = memoryAllocator->allocate(curProcess);
 
 							// Memory not full, frames successfully allocated
@@ -63,10 +66,15 @@ public:
 
 							// Memory full
 							else {
-								// TODO: Replace line below with Backing Store operation.
-								//		 Instead of returning the process to RQ, store the oldest process in BS then deallocate.
-								//		 Then reallocate the new process if there's space.
-								readyQueue.push_back(curProcess);
+								do {
+									contextSwitch();
+									frames = memoryAllocator->allocate(curProcess);
+								} while (frames.empty());
+								
+								curProcess->allocatedFrames = frames;
+
+								// Assign process to CPU core
+								cores[i]->assignProcess(curProcess, QUANTUM_CYCLES);
 							}
 						}
 					}
