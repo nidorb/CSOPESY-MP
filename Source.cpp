@@ -135,6 +135,10 @@ shared_ptr<Process> searchProcessByName(const string& name, const vector<Process
     return nullptr;
 }
 
+bool isPowerOfTwo(size_t n) {
+    return (n > 0) && ((n & (n - 1)) == 0);
+}
+
 void initialize(const string& configFilePath) {
     ifstream configFile(configFilePath);
     if (!configFile) {
@@ -241,7 +245,7 @@ void initialize(const string& configFilePath) {
         DELAYS_PER_EXEC = stoull(configMap["delays-per-exec"]);
         if (DELAYS_PER_EXEC < MIN_DELAY_PER_EXEC || DELAYS_PER_EXEC > MAX_RANGE) {
             invalidArg = true;
-            errorMessages << "delays-per-exec out of range. Must be between " << MIN_DELAY_PER_EXEC << "and " << MAX_RANGE << "." << endl;
+            errorMessages << "delays-per-exec out of range. Must be between " << MIN_DELAY_PER_EXEC << " and " << MAX_RANGE << "." << endl;
         }
     }
     else {
@@ -249,11 +253,11 @@ void initialize(const string& configFilePath) {
         errorMessages << "delays-per-exec not found in config file." << endl;
     }
 
-    if (configMap.find("delays-per-exec") != configMap.end()) {
+    if (configMap.find("max-overall-mem") != configMap.end()) {
         MAX_OVERALL_MEM = static_cast<size_t>(stoull(configMap["max-overall-mem"]));
-        if (MAX_OVERALL_MEM < MIN_RANGE || MAX_OVERALL_MEM > MAX_RANGE) {
+        if (MAX_OVERALL_MEM < MIN_RANGE || MAX_OVERALL_MEM > MAX_RANGE || !isPowerOfTwo(MAX_OVERALL_MEM)) {
             invalidArg = true;
-            errorMessages << "delays-per-exec out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;
+            errorMessages << "max-overall-mem out of range or not a power of 2. Must be between " << MIN_RANGE << " and " << MAX_RANGE << "." << endl;
         }
     }
     else {
@@ -263,9 +267,9 @@ void initialize(const string& configFilePath) {
 
     if (configMap.find("mem-per-frame") != configMap.end()) {
         MEM_PER_FRAME = static_cast<size_t>(stoull(configMap["mem-per-frame"]));
-        if (MEM_PER_FRAME < MIN_RANGE || MEM_PER_FRAME > MAX_RANGE) {
+        if (MEM_PER_FRAME < MIN_RANGE || MEM_PER_FRAME > MAX_RANGE || !isPowerOfTwo(MEM_PER_FRAME)) {
             invalidArg = true;
-            errorMessages << "mem-per-frame out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;
+            errorMessages << "mem-per-frame out of range or not a power of 2. Must be between " << MIN_RANGE << " and " << MAX_RANGE << "." << endl;
         }
     }
     else {
@@ -273,16 +277,33 @@ void initialize(const string& configFilePath) {
         errorMessages << "mem-per-frame not found in config file." << endl;
     }
 
-    if (configMap.find("mem-per-proc") != configMap.end()) {
-        MEM_PER_PROC = static_cast<size_t>(stoull(configMap["mem-per-proc"]));
-        if (MEM_PER_PROC < MIN_RANGE || MEM_PER_PROC > MAX_RANGE) {
+    if (configMap.find("min-mem-per-proc") != configMap.end()) {
+        MIN_MEM_PER_PROC = static_cast<size_t>(stoull(configMap["min-mem-per-proc"]));
+        if (MIN_MEM_PER_PROC < MIN_RANGE || MIN_MEM_PER_PROC > MAX_RANGE || !isPowerOfTwo(MIN_MEM_PER_PROC)) {
             invalidArg = true;
-            errorMessages << "mem-per-proc out of range. Must be between " << MIN_RANGE << "and " << MAX_RANGE << "." << endl;
+            errorMessages << "min-mem-per-proc out of range or not a power of 2. Must be between " << MIN_RANGE << " and " << MAX_RANGE << "." << endl;
         }
     }
     else {
         invalidArg = true;
-        errorMessages << "mem-per-proc not found in config file." << endl;
+        errorMessages << "min-mem-per-proc not found in config file." << endl;
+    }
+
+    if (configMap.find("max-mem-per-proc") != configMap.end()) {
+        MAX_MEM_PER_PROC = static_cast<size_t>(stoull(configMap["max-mem-per-proc"]));
+        if (MAX_MEM_PER_PROC < MIN_RANGE || MAX_MEM_PER_PROC > MAX_RANGE || !isPowerOfTwo(MAX_MEM_PER_PROC)) {
+            invalidArg = true;
+            errorMessages << "max-mem-per-proc out of range or not a power of 2. Must be between " << MIN_RANGE << " and " << MAX_RANGE << "." << endl;
+        }
+    }
+    else {
+        invalidArg = true;
+        errorMessages << "max-mem-per-proc not found in config file." << endl;
+    }
+
+    if (MAX_MEM_PER_PROC < MIN_MEM_PER_PROC) {
+        invalidArg = true;
+        errorMessages << "max-mem-per-proc must be greater than or equal to min-mem-per-proc." << endl;
     }
 
     configFile.close();
@@ -302,7 +323,8 @@ void initialize(const string& configFilePath) {
     cout << "DELAYS_PER_EXEC: " << DELAYS_PER_EXEC << endl;
     cout << "MAX_OVERALL_MEM: " << MAX_OVERALL_MEM << endl;
     cout << "MEM_PER_FRAME: " << MEM_PER_FRAME << endl;
-    cout << "MEM_PER_PROC: " << MEM_PER_PROC << endl;
+    cout << "MIN_MEM_PER_PROC: " << MIN_MEM_PER_PROC << endl;
+    cout << "MAX_MEM_PER_PROC: " << MAX_MEM_PER_PROC << endl;
 
     Process::MIN_INS = MIN_INS;
     Process::MAX_INS = MAX_INS;
@@ -367,6 +389,7 @@ void handleInput() {
         else if (input == "initialize") {
             initialize("config.txt");
         }
+
         
         else if (input == "scheduler-test") {
             scheduler->isGenerating = true;
